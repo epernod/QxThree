@@ -11,12 +11,10 @@
 /**
  * This is the main application class of your custom application "qxThree"
  *
- * @asset(qxthree/*)
  */
 qx.Class.define("qxthree.Application",
 {
   extend : qx.application.Standalone,
-
 
 
   /*
@@ -53,19 +51,28 @@ qx.Class.define("qxthree.Application",
       -------------------------------------------------------------------------
       */
 
-      // Create a button
-      var button1 = new qx.ui.form.Button("First Button", "qxthree/test.png");
-
       // Document is the application root
       var doc = this.getRoot();
 
-      // Add button to document at fixed coordinates
-      doc.add(button1, {left: 100, top: 50});
-
-      // Add an event listener
-      button1.addListener("execute", function(e) {
-        alert("Hello World!");
+      var win = new qx.ui.window.Window('Three 3D Cube example').set(
+              {
+                  width : 500,
+                  height : 500
+              });
+      win.setLayout(new qx.ui.layout.Grow());
+      win.addListener('appear', function() {
+          win.center()
       });
+
+      var glRenderer = new qxthree.GLRenderer();
+      win.add(glRenderer.helloWorld());
+      
+      win.open();
+
+    },
+
+    create3DScene : function(){
+
     }
   }
 });
