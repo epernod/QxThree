@@ -20,24 +20,55 @@ qx.Class.define("qxthree.GLRenderer", {
     extend : qx.ui.core.Widget,
     include: [qxthree.MixinGLRenderer],
 
-    construct: function(){
+    construct : function(W, H, parent)
+    {
         this.base(arguments);
-       
-        this.addListener("scriptLoaded", this.__init, this);
-        
-        this.__setup();
-        this.debug("setup END");
-        this.addListener("track", this.__onTrack, this);
+        this.__width = W;
+        this.__height = H;
+        this.__parent = parent;
         
         this.set(
                 {
                     backgroundColor: "green",
-                    //canvasWidth: this.__width,
-                    //canvasHeight: this.__height,
-                    //syncDimension: false,
-                    width: this.__width,
-                    height: this.__height
+//                    canvasWidth: W,
+//                    canvasHeight: H,
+//                    syncDimension: false,
+                    width: W,
+                    height: H
                 });
+       
+        this.addListener("scriptLoaded", this.__initScene, this);
+        this.addListener("track", this.__onTrack, this);
+        this.addListener("appear", this.__webGLStart, this);
+        
+//        this.addListenerOnce('scriptLoaded',function(e){
+//            var el = this.getContentElement().getDomElement();
+//            
+//            var scene = new THREE.Scene();
+//            var camera = new THREE.PerspectiveCamera( 75, this.getBounds().width/this.getBounds().height, 0.1, 1000 );
+//
+//            var renderer = new THREE.WebGLRenderer();
+//            renderer.setSize( this.getBounds().width,this.getBounds().height );
+//            el.appendChild(renderer.domElement);
+//      
+//            var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+//            var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+//            var cube = new THREE.Mesh( geometry, material );
+//            scene.add( cube );
+//      
+//            camera.position.z = 5;
+//      
+//            var render = function () {
+//            requestAnimationFrame( render );
+//              cube.rotation.x += 0.1;
+//              cube.rotation.y += 0.1;
+//              renderer.render(scene, camera);
+//            };
+//      
+//            render();
+//        },this);
+        
+
     },
     
     events : {
@@ -55,17 +86,39 @@ qx.Class.define("qxthree.GLRenderer", {
         __mesh: null,
         __logEvents: true,
 
+        __webGLStart: function(){
+            this.__setup();
+            this.debug("setup END");
+        },
         
-        __init: function()
+        __initGL: function()
         {
-            this.debug("MixinGLRenderer::init");
-         
+            this.debug("GLRenderer::__initGL");
             qx.ui.core.queue.Manager.flush();
             this.canvasElement = this.getContentElement().getDomElement();
             if (!this.canvasElement){
                 this.debug("Error: qxthree.GLRenderer: no DomElement found.")
 //                return false;
             }
+            else
+                this.debug("cette fois ci c'est ok");
+            
+            
+        },
+        
+        __initScene: function()
+        {
+            this.debug("GLRenderer::init");
+            
+            var el = this.getContentElement().getDomElement();
+            if (!this.canvasElement){
+                this.debug("Error: qxthree.GLRenderer: no DomElement found.")
+//                return false;
+            }
+            else
+                this.debug("cette fois ci c'est ok");
+         
+            
 
             this.__camera = new THREE.PerspectiveCamera( 70, this.__width / this.__height, 1, 1000 );
             this.__camera.position.z = 400;
@@ -80,8 +133,12 @@ qx.Class.define("qxthree.GLRenderer", {
             
             this.__renderer = new THREE.WebGLRenderer();
             this.__renderer.setPixelRatio( 1 );
-            this.__renderer.setSize( this.__width*0.5, this.__height );
+            this.__renderer.setSize( this.__width, this.__height );
+            
+            el.appendChild( this.__renderer.domElement );
+            
             this.__renderer.render( this.__scene, this.__camera );
+            
             /*
 new MeshBasicMaterial( { color: Math.random() * 0xffffff })
                 var texture = new THREE.TextureLoader().load( 'textures/crate.gif' );
@@ -93,7 +150,7 @@ new MeshBasicMaterial( { color: Math.random() * 0xffffff })
 
                 window.addEventListener( 'resize', onWindowResize, false );
 */
-            //this.__animateTest();
+            this.__animateTest();
             
             this.fireDataEvent('sceneCreated');
         },
@@ -145,11 +202,16 @@ new MeshBasicMaterial( { color: Math.random() * 0xffffff })
         {
             //this.debug("qxthree.GLRenderer::__animateTest");
             //requestAnimationFrame( this.__animateTest );
-
-            this.__mesh.rotation.x += 0.005;
-            this.__mesh.rotation.y += 0.01;
-
-            this.__renderer.render( this.__scene, this.__camera );
+//            return function(){
+//                var render = function(){
+//                    requestAnimationFrame( render );
+//                    this.__mesh.rotation.x += 0.005;
+//                    this.__mesh.rotation.y += 0.01;
+//
+//                    this.__renderer.render( this.__scene, this.__camera );
+//                };
+//            };
+            
             
         }
     }

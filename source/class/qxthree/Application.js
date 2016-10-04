@@ -25,6 +25,8 @@ qx.Class.define("qxthree.Application",
 
   members :
   {
+      __webElement: null,
+      __glRenderer: null,
     /**
      * This method contains the initial application code and gets called 
      * during startup of the application
@@ -54,44 +56,104 @@ qx.Class.define("qxthree.Application",
       // Document is the application root
       var doc = this.getRoot();
 
-      this.glRenderer = new qxthree.GLRenderer();
+      this.__webElement = document.getElementById("qooxdooDiv");
+      
+      if(this.__webElement)
+          this.__initDiv();
+            
+      
+//      this.glRenderer = new qxthree.GLRenderer();
      // win.add(glRenderer.getRenderer());
           
-      this.glRenderer.testMethod();
+  //    this.glRenderer.testMethod();
 
-      this.glRenderer.addListener("sceneCreated", this.create3DScene, this);
+    
       
+    },
+    
+    __initDiv: function()
+    {
+        var widthDiv = this.__webElement.getAttribute("width");
+        var heightDiv = this.__webElement.getAttribute("height");
+                              
+        if (widthDiv)
+            this.__webElement.style.width = widthDiv + "px";
+        else {
+            widthDiv = this.__webElement.clientWidth;
+            
+            if (widthDiv == null || widthDiv < 100)
+                widthDiv = 800;
+            
+            this.__webElement.style.width = widthDiv + "px";
+        }
+            
+        if (heightDiv)
+            this.__webElement.style.height = heightDiv + "px";
+        else {
+            heightDiv = this.__webElement.clientHeight;
+            
+            if (heightDiv == null || heightDiv < 100)
+                heightDiv = 600;
+            
+            this.__webElement.style.height = heightDiv + "px";
+        }
+               
+        this.debug("widthDiv: " + widthDiv);
+        this.debug("heightDiv: " + heightDiv);
+
+               
+        this.__inlineModule = new qx.ui.root.Inline(this.__webElement, true, true);
+        this.__inlineModule.addListener("resize", this.__updateSize, this);
+        this.__inlineModule.set({
+            backgroundColor : "blue"
+        });
+        
+        this.__glRenderer = new qxthree.GLRenderer(widthDiv, heightDiv, this);
+        this.__glRenderer.addListener("sceneCreated", this.create3DScene, this);    
+        //this.__glRenderer.init();
+
+        
+        var box = new qx.ui.container.Composite(new qx.ui.layout.VBox(8));
+        box.set({
+            backgroundColor : "blue",
+                    width : 500,
+                    allowShrinkY : false,
+                    allowShrinkX : false,
+                    height : 500
+        });
+        
+        this.__inlineModule.add(this.__glRenderer);
+        //this.__inlineModule.add(box);
+    },
+    
+    
+    __updateSize : function(event)
+    {        
+        this.debug("app::updateSize");
+        var width = parseInt(qx.bom.element.Style.get(this.__webElement, 'width'));
+        var height = parseInt(qx.bom.element.Style.get(this.__webElement, 'height'));
+        
+        this.debug("width: " + width);
+        this.debug("height: " + height);
+      
+        if(this.__mainWindow) {
+            this.__mainWindow.setWidth(width);
+            this.__mainWindow.setHeight(height);    
+        }
+        
     },
 
     create3DScene : function(){
+        
+        
+        
         this.debug("create3DScene");
+       // return;
         
-        var win = new qx.ui.window.Window('Three 3D Cube example').set(
-                {
-                    backgroundColor: "red",
-                    width : 500,
-                    height : 500
-                });
-        win.setLayout(new qx.ui.layout.Grow());
-        win.addListener('appear', function() {
-            win.center()
-        });
-        //var test1 = new qx.ui.layout.HBox(10);
-        //test1.add(this.glRenderer.getRenderer());
-        win.add(this.glRenderer);
-        win.open();
-        var test = document.body;
         
-        var chk = qx.dom.Element.create("input", {
-            type : "checkbox",
-            checked : true,
-            id : "chk"
-          });
+       
 
-        document.body.appendChild(chk);
-        var toto = this.glRenderer.getRenderer();
-        chk.appendChild(toto);
-        document.body.appendChild(this.glRenderer.getRenderer());
+       // document.body.appendChild(this.__glRenderer.getRenderer());
         //win.add(chk);
         
 //        var test = document.getElementById("qooxdooDiv");
