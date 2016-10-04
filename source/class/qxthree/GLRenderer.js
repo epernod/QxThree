@@ -32,6 +32,8 @@ qx.Class.define("qxthree.GLRenderer", {
         
         // Others listeners
         this.addListener("track", this.__onTrack, this);
+        
+        this.addListener("resize", this.onResize, this);
     },
 
     events : {
@@ -89,11 +91,27 @@ qx.Class.define("qxthree.GLRenderer", {
             el.appendChild( this.__renderer.domElement );
             
             this.fireDataEvent('sceneCreated');
-            this.animate();         
+            this.animate();
         },
         
         getRenderer: function(){
             return this.__renderer.domElement;
+        },
+        
+        onResize: function()
+        {   
+            this.__canvasHeight = this.getBounds().height;
+            this.__canvasWidth = this.getBounds().width;
+            
+            if(!this.__renderer)
+                return;           
+                       
+            this.__camera.aspect = this.__canvasWidth / this.__canvasHeight;
+            this.__camera.updateProjectionMatrix();
+            
+            this.__renderer.setSize( this.__canvasWidth, this.__canvasHeight );
+
+            this.updateGL();
         },
                
         __onTrack: function(trackEvent){
