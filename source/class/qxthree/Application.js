@@ -14,7 +14,7 @@
  */
 qx.Class.define("qxthree.Application",
 {
-  extend : qx.application.Standalone,
+    extend: qx.application.Inline,
 
 
   /*
@@ -54,24 +54,52 @@ qx.Class.define("qxthree.Application",
       // Document is the application root
       var doc = this.getRoot();
 
-      var win = new qx.ui.window.Window('Three 3D Cube example').set(
-              {
-                  width : 500,
-                  height : 500
-              });
-      win.setLayout(new qx.ui.layout.Grow());
-      win.addListener('appear', function() {
-          win.center()
-      });
+      this.glRenderer = new qxthree.GLRenderer();
+     // win.add(glRenderer.getRenderer());
+          
+      this.glRenderer.testMethod();
 
-      var glRenderer = new qxthree.GLRenderer();
-      win.add(glRenderer.helloWorld());
+      this.glRenderer.addListener("sceneCreated", this.create3DScene, this);
       
-      win.open();
-
     },
 
     create3DScene : function(){
+        this.debug("create3DScene");
+        
+        var win = new qx.ui.window.Window('Three 3D Cube example').set(
+                {
+                    backgroundColor: "red",
+                    width : 500,
+                    height : 500
+                });
+        win.setLayout(new qx.ui.layout.Grow());
+        win.addListener('appear', function() {
+            win.center()
+        });
+        //var test1 = new qx.ui.layout.HBox(10);
+        //test1.add(this.glRenderer.getRenderer());
+        win.add(this.glRenderer);
+        win.open();
+        var test = document.body;
+        
+        var chk = qx.dom.Element.create("input", {
+            type : "checkbox",
+            checked : true,
+            id : "chk"
+          });
+
+        document.body.appendChild(chk);
+        var toto = this.glRenderer.getRenderer();
+        chk.appendChild(toto);
+        document.body.appendChild(this.glRenderer.getRenderer());
+        //win.add(chk);
+        
+//        var test = document.getElementById("qooxdooDiv");
+//        if(test)
+//            test.appendChild(this.glRenderer.getRenderer());
+// 
+//        if(chk)
+//                chk.appenchild(this.glRenderer.getRenderer());
 
     }
   }
