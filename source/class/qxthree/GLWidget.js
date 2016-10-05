@@ -24,16 +24,21 @@ qx.Class.define("qxthree.GLWidget", {
     {
         this.base(arguments);
 
+        // Init empty list of 3D mesh object of the scene
+        this.__GLModels = new qx.data.Array();
+        
         // Three.js scripts need to be loaded first. This will fired event scriptLoaded 
         this.__setup(plugins);
         
         // Method to init the scene as soon as Three.js has been loaded
-        this.addListener("scriptLoaded", this.__initScene, this);
+        this.addListener("scriptLoaded", this._initScene, this);
         
         // Others listeners
 //        this.addListener("track", this.__onTrack, this);
         
         this.addListener("resize", this.onResize, this);
+        
+        
     },
 
     events : {
@@ -41,82 +46,156 @@ qx.Class.define("qxthree.GLWidget", {
     },
 
     members : {
-        
+        /** members */
         __canvasHeight: 400,
         __canvasWidth: 400,
         
-        __camera: null,
-        __scene: null,
-        __renderer: null,
-        __mesh: null,
         __logEvents: false,
 
+        /** Three.js camera object */
+        __threeCamera: null,
+        /** Three.js scene object */
+        __threeScene: null,
+        /** Three.js renderer object */
+        __threeRenderer: null,
+        /** Three.js controller object */
+        __threeController: null,
         
-        __initScene: function()
+        __GLModels: null,
+        
+        /**
+         * @return {Integer} of the canvas height.
+         */
+        canvasHeight : function() {return this.__canvasHeight;},
+        
+        /**
+         * @return {Integer} of the canvas width.
+         */
+        canvasWidth : function() {return this.__canvasWidth;},
+        
+        
+        /**
+         * Internal Main method to init Three.js empty scene with default objects. 
+         * Called when @see scriptLoaded event is fired.
+         * @return {Boolean} false if error is encountered.
+         */
+        _initScene: function()
         {
             if (qx.core.Environment.get("qx.debug"))
-                this.debug("GLWidget::__initScene");
+                this.debug("GLWidget::_initScene");
             
+            // Get the current DomElement
             var el = this.getContentElement().getDomElement();
             if (!el){
-                this.debug("Error: qxthree.GLRenderer: no DomElement found.")
+                this.debug("Error: qxthree.GLWidget: no DomElement found.")
                 return false;
             }
-                    
+            
+            // Init Three canvas with current widget size
             this.__canvasHeight = this.getBounds().height;
             this.__canvasWidth = this.getBounds().width;
 
-            this.__camera = new THREE.PerspectiveCamera( 70, this.__canvasWidth / this.__canvasHeight, 1, 1000 );
-            this.__camera.position.z = 400;
+            // Init the Three.PerspectiveCamera
+            this.__threeCamera = new THREE.PerspectiveCamera( 70, this.__canvasWidth / this.__canvasHeight, 0.1, 1000 );
+            // Add default position of the camera
+            this.__threeCamera.position.z = 400;
             
-            this.controls = new THREE.TrackballControls( this.__camera );
-            this.controls.rotateSpeed = 1.0;
-            this.controls.zoomSpeed = 1.2;
-            this.controls.panSpeed = 0.8;
-            this.controls.noZoom = false;
-            this.controls.noPan = false;
-            this.controls.staticMoving = true;
-            this.controls.dynamicDampingFactor = 0.3;
+            // Init empty Three scene
+            this.__threeScene = new THREE.Scene();
             
-            this.__scene = new THREE.Scene();
+            // Init the webgl renderer
+            this.__threeRenderer = new THREE.WebGLRenderer();
+            this.__threeRenderer.setPixelRatio( 1 );
+            this.__threeRenderer.setSize( this.__canvasWidth, this.__canvasHeight );
             
-            var geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
-            
-            var texture = new THREE.TextureLoader().load( 'resource/crate.gif' );
-            
-            //var material = new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } );
-            var material = new THREE.MeshBasicMaterial( { map: texture } );
-            
-            this.__mesh = new THREE.Mesh( geometry, material );
-            this.__scene.add( this.__mesh );
-            
-            this.__renderer = new THREE.WebGLRenderer();
-            this.__renderer.setPixelRatio( 1 );
-            
-            this.__renderer.setSize( this.__canvasWidth, this.__canvasHeight );
-            
-            el.appendChild( this.__renderer.domElement );
+            // Init current list of glModels
+            for (var i=0; i<this.__GLModels.length; i++)
+            {   
+                var model = this.__GLModels.getItem(i);
+                if (!model.isInit())
+                    model.initGL();
+
+                this._addThreeMesh(model);
+            }
+                        
+            // Add webgl canvas to the current widget
+            el.appendChild( this.__threeRenderer.domElement );
             
             this.fireDataEvent('sceneCreated');
-            this.animate();
+            
+            // Start animation loop
+            
+     
+//            this.__threeController = new THREE.TrackballControls( this.__threeCamera );
+//            this.__threeController.rotateSpeed = 1.0;
+//            this.__threeController.zoomSpeed = 1.2;
+//            this.__threeController.panSpeed = 0.8;
+//            this.__threeController.noZoom = false;
+//            this.__threeController.noPan = false;
+//            this.__threeController.staticMoving = true;
+//            this.__threeController.dynamicDampingFactor = 0.3;
+            
+           // this.test(); 
+            
+            //var material = new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } );
+                      
+        },               
+
+        
+        /**
+         * Method to add a @param model {qxthree.GLModel}. 
+         * This model will be added to @see __GLModels
+         * If scene is already runnin, model will be init and mesh will be added to the scene
+         */
+        addGLModel: function(model)
+        {
+            if (this.__GLModels.contains(model))
+                this.debug("Error: GLModel already in the scene: " + model.id());
+            else 
+            {      
+                this.__GLModels.push(model);
+                if (this.__threeScene)
+                {
+                    this.debug("Added in method");
+                    if (!model.isInit())
+                        model.initGL();
+                    
+                    this._addThreeMesh(model);                    
+                    this.updateGL();
+                }
+            }
+            this._animate();
         },
         
-        getRenderer: function(){
-            return this.__renderer.domElement;
+        
+        /**
+         * Internal Method to add a Three mesh from a @see qxthree.GLModel into the Three scene.
+         * Will set @see qxthree.GLModel.__isRegistered to {true}
+         */
+        _addThreeMesh: function(model)
+        {
+            if (!model.isRegistered()){
+                this.__threeScene.add( model.threeMesh() );
+                model.setRegistered(true);
+            }
         },
         
+        
+        /**
+         * Method to resize the webGl Canvas following GLWidget change of size.
+         */
         onResize: function()
         {   
             this.__canvasHeight = this.getBounds().height;
             this.__canvasWidth = this.getBounds().width;
             
-            if(!this.__renderer)
+            if(!this.__threeRenderer || !this.__threeCamera)
                 return;           
                        
-            this.__camera.aspect = this.__canvasWidth / this.__canvasHeight;
-            this.__camera.updateProjectionMatrix();
+            this.__threeCamera.aspect = this.__canvasWidth / this.__canvasHeight;
+            this.__threeCamera.updateProjectionMatrix();
             
-            this.__renderer.setSize( this.__canvasWidth, this.__canvasHeight );
+            this.__threeRenderer.setSize( this.__canvasWidth, this.__canvasHeight );
 
             this.updateGL();
         },
@@ -132,24 +211,34 @@ qx.Class.define("qxthree.GLWidget", {
 //            
 //        },
         
-        animate: function()
+        _animate: function()
         {
-//          this.__mesh.rotation.x += 0.005;
-//          this.__mesh.rotation.y += 0.01;
+            // call animate method of each GLObject
+            for (var i=0; i<this.__GLModels.length; i++)
+                this.__GLModels.getItem(i).animate();
 
-          this.updateGL();
+            this.updateGL();
 
-          requestAnimationFrame( this.animate.bind(this) );                      
+            requestAnimationFrame( this._animate.bind(this) );                      
         },
+
+          
         
+        
+        /**
+         * Main method to render the 3D scene, should be called each time the rendering need to be updated
+         */
         updateGL: function()
         {
-            if(!this.__renderer)
+            if(!this.__threeRenderer)
                 return;
             
-            this.controls.update();
+            // Call update of the controller if set
+            if (this.__threeController)
+                this.__threeController.update();            
             
-            this.__renderer.render( this.__scene, this.__camera );
+            // Update the rendering
+            this.__threeRenderer.render( this.__threeScene, this.__threeCamera );
         }
     }
 });
