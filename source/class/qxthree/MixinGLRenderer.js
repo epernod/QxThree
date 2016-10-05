@@ -61,7 +61,7 @@ qx.Mixin.define("qxthree.MixinGLRenderer", {
             
         },
         
-        __setup: function()
+        __setup: function(plugins)
         {
             var min = '.min';
             if (qx.core.Environment.get("qx.debug")) {
@@ -74,11 +74,22 @@ qx.Mixin.define("qxthree.MixinGLRenderer", {
             var codeArr = [
                   "three" + min + ".js"
             ];
-            this.__loadScriptArr(codeArr, qx.lang.Function.bind(this.__addCanvas));
+            
+            if (plugins) {
+                for (var i = 0; i < plugins.length; i++) {
+                    this.debug(plugins[i]);
+                    codeArr.push('scripts/' + plugins[i] + '.js');
+                }
+            }
+            
+            
+            this.__loadScriptArr(codeArr, qx.lang.Function.bind(this.__addCanvas.bind(this)));
         },
         
-        __addCanvas:function (){
+        __addCanvas: function (){
+            this.debug("__addCanvas");
             
+            this.fireDataEvent('scriptLoaded');
         },
         
         __loadScriptArr: function(codeArr,handler)
@@ -104,14 +115,14 @@ qx.Mixin.define("qxthree.MixinGLRenderer", {
             qxthree.MixinGLRenderer.LOADING[script] = this;
 
             var src = qx.util.ResourceManager.getInstance().toUri("three/"+script);
+            this.debug("src: " + src);
             if (qx.io.ScriptLoader){
                 var sl = new qx.io.ScriptLoader();
                 sl.load(src, function(status){
                     if (status == 'success'){
                         // this.debug("Dynamically loaded "+src+": "+status);
                         qxthree.MixinGLRenderer.LOADED[script] = true;
-                        delete qxthree.MixinGLRenderer.LOADING[script];
-                        this.fireDataEvent('scriptLoaded',script);
+                        delete qxthree.MixinGLRenderer.LOADING[script];                        
                         this.__loadScriptArr(codeArr,handler);
                     }
                 },this);
@@ -121,7 +132,6 @@ qx.Mixin.define("qxthree.MixinGLRenderer", {
                 req.on('load',function() {
                     qxthree.MixinGLRenderer.LOADED[script] = true;
                     delete qxthree.MixinGLRenderer.LOADING[script];
-                    this.fireDataEvent('scriptLoaded',script);
                     this.__loadScriptArr(codeArr,handler);
                 },this);
                 req.open("GET", src);

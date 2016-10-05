@@ -20,18 +20,18 @@ qx.Class.define("qxthree.GLRenderer", {
     extend : qx.ui.core.Widget,
     include: [qxthree.MixinGLRenderer],
 
-    construct : function()
+    construct : function(plugins)
     {
         this.base(arguments);
 
         // Three.js scripts need to be loaded first. This will fired event scriptLoaded 
-        this.__setup();
+        this.__setup(plugins);
         
         // Method to init the scene as soon as Three.js has been loaded
         this.addListener("scriptLoaded", this.__initScene, this);
         
         // Others listeners
-        this.addListener("track", this.__onTrack, this);
+//        this.addListener("track", this.__onTrack, this);
         
         this.addListener("resize", this.onResize, this);
     },
@@ -54,21 +54,29 @@ qx.Class.define("qxthree.GLRenderer", {
         
         __initScene: function()
         {
-            this.debug("GLRenderer::__initScene");
+            if (qx.core.Environment.get("qx.debug"))
+                this.debug("GLRenderer::__initScene");
             
             var el = this.getContentElement().getDomElement();
             if (!el){
                 this.debug("Error: qxthree.GLRenderer: no DomElement found.")
                 return false;
             }
-            else
-                this.debug("cette fois ci c'est ok");
                     
             this.__canvasHeight = this.getBounds().height;
             this.__canvasWidth = this.getBounds().width;
 
             this.__camera = new THREE.PerspectiveCamera( 70, this.__canvasWidth / this.__canvasHeight, 1, 1000 );
             this.__camera.position.z = 400;
+            
+            this.controls = new THREE.TrackballControls( this.__camera );
+            this.controls.rotateSpeed = 1.0;
+            this.controls.zoomSpeed = 1.2;
+            this.controls.panSpeed = 0.8;
+            this.controls.noZoom = false;
+            this.controls.noPan = false;
+            this.controls.staticMoving = true;
+            this.controls.dynamicDampingFactor = 0.3;
             
             this.__scene = new THREE.Scene();
             
@@ -85,7 +93,6 @@ qx.Class.define("qxthree.GLRenderer", {
             this.__renderer = new THREE.WebGLRenderer();
             this.__renderer.setPixelRatio( 1 );
             
-            this.debug("this.__width: " + this.getBounds().width);
             this.__renderer.setSize( this.__canvasWidth, this.__canvasHeight );
             
             el.appendChild( this.__renderer.domElement );
@@ -114,21 +121,21 @@ qx.Class.define("qxthree.GLRenderer", {
             this.updateGL();
         },
                
-        __onTrack: function(trackEvent){
-            if (qx.core.Environment.get("qx.debug") && this.__logEvents){
-                this.debug("Event: webGLController::__onTrack");
-            }
-            this.__mesh.rotation.x += 0.005;
-            this.__mesh.rotation.y += 0.01;
-
-            this.updateGL();
-            
-        },
+//        __onTrack: function(trackEvent){
+//            if (qx.core.Environment.get("qx.debug") && this.__logEvents){
+//                this.debug("Event: webGLController::__onTrack");
+//            }
+//            this.__mesh.rotation.x += 0.005;
+//            this.__mesh.rotation.y += 0.01;
+//
+//            this.updateGL();
+//            
+//        },
         
         animate: function()
         {
-          this.__mesh.rotation.x += 0.005;
-          this.__mesh.rotation.y += 0.01;
+//          this.__mesh.rotation.x += 0.005;
+//          this.__mesh.rotation.y += 0.01;
 
           this.updateGL();
 
@@ -139,6 +146,8 @@ qx.Class.define("qxthree.GLRenderer", {
         {
             if(!this.__renderer)
                 return;
+            
+            this.controls.update();
             
             this.__renderer.render( this.__scene, this.__camera );
         }

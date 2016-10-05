@@ -54,8 +54,11 @@ qx.Class.define("qxthree.Application",
       // Document is the application root
       var doc = this.getRoot();
 
+      var plugins = ['controls/TrackballControls'];
+      //var plugins = ['TrackballControls'];
+      
       // Create Gl Canvas
-      var glRenderer = new qxthree.GLRenderer();
+      var glRenderer = new qxthree.GLRenderer(plugins);
       
       var win = new qx.ui.window.Window('Three 3D Cube example').set(
               {
