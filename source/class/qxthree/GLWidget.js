@@ -38,7 +38,8 @@ qx.Class.define("qxthree.GLWidget", {
         
         this.addListener("resize", this.onResize, this);
         
-        
+        this.addListener("trackstart", this.__onTrackStart, this);
+        this.addListener("track", this.__onTrack, this);
     },
 
     events : {
@@ -51,6 +52,7 @@ qx.Class.define("qxthree.GLWidget", {
         __canvasWidth: 400,
         
         __logEvents: false,
+        __animate: false,
 
         /** Three.js camera object */
         __threeCamera: null,
@@ -124,24 +126,35 @@ qx.Class.define("qxthree.GLWidget", {
             this.fireDataEvent('sceneCreated');
             
             // Start animation loop
-            
-     
-//            this.__threeController = new THREE.TrackballControls( this.__threeCamera );
-//            this.__threeController.rotateSpeed = 1.0;
-//            this.__threeController.zoomSpeed = 1.2;
-//            this.__threeController.panSpeed = 0.8;
-//            this.__threeController.noZoom = false;
-//            this.__threeController.noPan = false;
-//            this.__threeController.staticMoving = true;
-//            this.__threeController.dynamicDampingFactor = 0.3;
-            
-           // this.test(); 
-            
-            //var material = new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } );
-                      
+            this.updateGL();
         },               
 
-        
+        /**
+         * Method to add a Three TrackballController on the Three scene. Need to use plugin @see controls/TrackballControls
+         * TODO add the parameter of the trackball as param of this method
+         */
+        addController: function(){
+            if (!this.__threeScene){
+                this.debug("Scene not ready, will be added later");
+                this.addListenerOnce('sceneCreated',function(){
+                    this.addController();
+                },this);
+            }
+
+            this.debug("has plugin TrackballControls: " + this._hasPlugin("TrackballControls"));
+            
+            if(this._hasPlugin("TrackballControls")){
+                this.__threeController = new THREE.TrackballControls( this.__threeCamera );
+                this.__threeController.rotateSpeed = 1.0;
+                this.__threeController.zoomSpeed = 1.2;
+                this.__threeController.panSpeed = 0.8;
+                this.__threeController.noZoom = false;
+                this.__threeController.noPan = false;
+                this.__threeController.staticMoving = true;
+                this.__threeController.dynamicDampingFactor = 0.3;
+            }
+        },
+
         /**
          * Method to add a @param model {qxthree.GLModel}. 
          * This model will be added to @see __GLModels
@@ -163,8 +176,7 @@ qx.Class.define("qxthree.GLWidget", {
                     this._addThreeMesh(model);                    
                     this.updateGL();
                 }
-            }
-            this._animate();
+            }            
         },
         
         
@@ -199,17 +211,17 @@ qx.Class.define("qxthree.GLWidget", {
 
             this.updateGL();
         },
-               
-//        __onTrack: function(trackEvent){
-//            if (qx.core.Environment.get("qx.debug") && this.__logEvents){
-//                this.debug("Event: webGLController::__onTrack");
-//            }
-//            this.__mesh.rotation.x += 0.005;
-//            this.__mesh.rotation.y += 0.01;
-//
-//            this.updateGL();
-//            
-//        },
+                 
+        /**
+         * Method to set @param {Boolean} value to @see __animate
+         * Will start the animation if not already running.
+         */
+        animate: function(value){
+            var previous = this.__animate; 
+            this.__animate = value;
+            if (value && !previous) // need to restart
+                this._animate();
+        },
         
         _animate: function()
         {
@@ -219,10 +231,28 @@ qx.Class.define("qxthree.GLWidget", {
 
             this.updateGL();
 
-            requestAnimationFrame( this._animate.bind(this) );                      
+            if (this.__animate)
+                requestAnimationFrame( this._animate.bind(this) );                      
         },
 
-          
+        /**
+         * callback method when @see trackstart {event} is catched
+         */
+        __onTrackStart: function(trackEvent) {
+            if (qx.core.Environment.get("qx.debug") && this.__logEvents){
+                this.debug("Event: GLWidget::__onTrackStart");
+            }
+        },
+        
+        /**
+         * callback method when @see track {event} is catched
+         */
+        __onTrack: function(trackEvent){
+            if (qx.core.Environment.get("qx.debug") && this.__logEvents){
+                this.debug("Event: GLWidget::__onTrack");
+            }
+            this.updateGL();
+        },
         
         
         /**

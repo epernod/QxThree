@@ -55,10 +55,14 @@ qx.Mixin.define("qxthree.MixinGLRenderer", {
     },
     
     members :
-    {       
-        __animate: function()
+    {                      
+        _hasPlugin: function(targetPlugin)
         {
-            
+            for (var scriptName in qxthree.MixinGLRenderer.LOADED){
+                if (scriptName.includes(targetPlugin))
+                    return true;
+            } 
+            return false;
         },
         
         __setup: function(plugins)
@@ -115,7 +119,7 @@ qx.Mixin.define("qxthree.MixinGLRenderer", {
             qxthree.MixinGLRenderer.LOADING[script] = this;
 
             var src = qx.util.ResourceManager.getInstance().toUri("three/"+script);
-            this.debug("src: " + src);
+
             if (qx.io.ScriptLoader){
                 var sl = new qx.io.ScriptLoader();
                 sl.load(src, function(status){
