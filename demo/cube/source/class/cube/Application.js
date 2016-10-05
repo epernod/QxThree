@@ -85,6 +85,7 @@ qx.Class.define("cube.Application",
       scenePostProcess: function()
       {
           this.debug("Scene has been created");
+          this.GLWidget.animate(true);
       }
   }
 });

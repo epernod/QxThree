@@ -60,6 +60,11 @@ qx.Class.define("qxthree.Application",
       // Create Gl Canvas
       var glRenderer = new qxthree.GLWidget(plugins);
       
+   // Create cube and add it to the 3D scene (will be init after scene)
+      var glCube = new qxthree.GLModel("test1");
+      glRenderer.addGLModel(glCube);
+      glRenderer.addController();
+      
       var win = new qx.ui.window.Window('Three 3D Cube example').set(
               {
                   backgroundColor: "red",
