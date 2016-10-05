@@ -42,7 +42,7 @@
   {
     "APPLICATION"  : "qxthree",
     "QOOXDOO_PATH" : "../qooxdoo/5.0",
-    "QXTHEME"      : "qxthree.theme.Theme",
+    "QXTHEME"      : "qx.theme.Modern",
     "API_EXCLUDE"  : ["qx.test.*", "${APPLICATION}.theme.*", "${APPLICATION}.test.*"],
     "LOCALES"      : [ "en" ],
     "CACHE"        : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
