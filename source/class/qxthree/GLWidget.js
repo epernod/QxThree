@@ -16,7 +16,7 @@
 /**
  * 
  */
-qx.Class.define("qxthree.GLRenderer", {
+qx.Class.define("qxthree.GLWidget", {
     extend : qx.ui.core.Widget,
     include: [qxthree.MixinGLRenderer],
 
@@ -55,7 +55,7 @@ qx.Class.define("qxthree.GLRenderer", {
         __initScene: function()
         {
             if (qx.core.Environment.get("qx.debug"))
-                this.debug("GLRenderer::__initScene");
+                this.debug("GLWidget::__initScene");
             
             var el = this.getContentElement().getDomElement();
             if (!el){
