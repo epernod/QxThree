@@ -68,8 +68,9 @@ qx.Class.define("interactions.Application",
             this.GLWidget = new qxthree.GLWidget(plugins);
 
             // Create cube and add it to the 3D scene (will be init after scene)
-            var glCube = new qxthree.GLModel("test1");
-            this.GLWidget.addGLModel(glCube);
+            this.GLWidget.addListener("scriptLoaded", this.initMeshes, this);
+
+            // Set a default mode of interactor
             this.changeMouseInteractorParams("TrackballControls");
 
             this.GLWidget.addListener("sceneCreated", this.scenePostProcess, this);
@@ -82,6 +83,25 @@ qx.Class.define("interactions.Application",
         {
             this.debug("Scene has been created");
             //this.GLWidget.animate(true);  
+        },
+        
+        initMeshes: function()
+        {           
+            // Create geometry object
+            var geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
+                        
+            for ( var i = 0; i < 2000; i ++ ) 
+            {                              
+                var mat = new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } );
+                var glCube = new qxthree.GLModel("cube_"+Number(i), null, geometry, mat, 
+                            function(){
+                    this.setPosition(Math.random() * 800 - 400, Math.random() * 800 - 400, Math.random() * 800 - 400);
+                    this.setRotation(Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI);
+                    this.setScale(Math.random() + 0.5, Math.random() + 0.5, Math.random() + 0.5);
+                }, this);
+
+                this.GLWidget.addGLModel(glCube);            
+            }          
         },
         
         initWindow: function()

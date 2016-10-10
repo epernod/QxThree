@@ -26,6 +26,9 @@ qx.Class.define("cube.Application",
 
   members :
   {
+      /**
+       * Main interface class with Three.js library. Inherite from qx.Widget and handle Three Gl canvas
+       */
       GLWidget: null,
 
       /**
@@ -61,7 +64,12 @@ qx.Class.define("cube.Application",
           this.GLWidget = new qxthree.GLWidget();
 
           // Create cube and add it to the 3D scene (will be init after scene)
-          var glCube = new qxthree.GLModel("test1");
+          var glCube = new qxthree.GLModel("test1", function() {
+              var geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
+              var texture = new THREE.TextureLoader().load( 'resource/crate.gif' );
+              var material = new THREE.MeshBasicMaterial( { map: texture } );
+              return new THREE.Mesh( geometry, material );
+          }, this);
           this.GLWidget.addGLModel(glCube);
 
           this.GLWidget.addListener("scriptLoaded", this.scenePostProcess, this);
