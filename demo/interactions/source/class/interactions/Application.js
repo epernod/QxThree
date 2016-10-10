@@ -62,7 +62,7 @@ qx.Class.define("interactions.Application",
             var doc = this.getRoot();
 
             // List of plugins to load
-            var plugins = ['controls/TrackballControls'];
+            var plugins = ['controls/TrackballControls', 'controls/OrbitControls'];
 
             // Create Gl Canvas
             this.GLWidget = new qxthree.GLWidget(plugins);
@@ -70,28 +70,125 @@ qx.Class.define("interactions.Application",
             // Create cube and add it to the 3D scene (will be init after scene)
             var glCube = new qxthree.GLModel("test1");
             this.GLWidget.addGLModel(glCube);
-            this.GLWidget.addController();
+            this.changeMouseInteractorParams("TrackballControls");
 
-            this.GLWidget.addListener("scriptLoaded", this.scenePostProcess, this);
+            this.GLWidget.addListener("sceneCreated", this.scenePostProcess, this);
 
             // Create qx window
-            var win = new qx.ui.window.Window('Three 3D Cube example').set(
-                    {
-                        width : 500,
-                        height : 500
-                    });
-            win.setLayout(new qx.ui.layout.Grow());
-            win.addListener('appear', function() {
-                win.center()
-            });
-            win.add(this.GLWidget);
-            win.open();      
+            this.initWindow();
         },
 
         scenePostProcess: function()
         {
             this.debug("Scene has been created");
             //this.GLWidget.animate(true);  
+        },
+        
+        initWindow: function()
+        {
+            // Create a container to have a panel on the left and GLWidget on the right
+            var container = new qx.ui.container.Composite(new qx.ui.layout.HBox(5)).set({
+                decorator: "main",
+                width : 650,
+                height : 500,
+                backgroundColor: "black",
+                allowGrowX: true,
+                allowGrowY: true
+              });
+            
+            // Add the different widgets to the container
+            container.add(this.createPanel(), { flex : 1 });
+            container.add(this.GLWidget, { flex : 2 });
+
+            // Create the main window to encapsulate this container
+            var win = new qx.ui.window.Window('Three 3D Cubes interactions').set(
+                    {
+                        backgroundColor: "yellow",
+                        width : 650,
+                        height : 500,
+                        allowGrowX: true,
+                        allowGrowY: true
+                    });
+            win.setLayout(new qx.ui.layout.Grow());
+            win.addListener('appear', function() {
+                win.center()
+            });
+            win.add(container);
+            win.open();
+        },
+        
+        createPanel: function()
+        {
+            // create panel layout
+            var panelLayout = new qx.ui.layout.VBox();
+            panelLayout.setSpacing(10);
+
+            // add the panel layout to the container widget
+            var panelCont = new qx.ui.container.Composite(panelLayout).set({backgroundColor: "#e0e0e0", maxWidth:150});
+            panelCont.setPadding(20);
+
+            // Add a title to that section
+            var label1 = new qx.ui.basic.Label("Mouse interactor").set({font : new qx.bom.Font(14, ["Verdana", "sans-serif"])});
+            panelCont.add(label1);
+
+            // Create radio buttons choice
+            var rbTrackBall = new qx.ui.form.RadioButton("TrackballControls");
+            var rbOrbit = new qx.ui.form.RadioButton("OrbitControls");
+
+            // Add them to the container
+            panelCont.add(rbTrackBall);
+            panelCont.add(rbOrbit);
+
+            // Add all radio buttons to the manager
+            var manager = new qx.ui.form.RadioGroup(rbTrackBall, rbOrbit);
+
+            // Add a listener to the "changeSelected" event
+            manager.addListener("changeSelection", this._onChangeMouseInteraction, this);
+            
+            // Return the panel container to be added to the main widget
+            return panelCont;
+        },
+        
+        _onChangeMouseInteraction: function(e)
+        {                       
+            var selectedButton = e.getData()[0];
+            var interactorType = selectedButton.getLabel();
+                
+            this.changeMouseInteractorParams(interactorType);
+        },
+        
+        changeMouseInteractorParams: function(interactorType)
+        {
+            if (!this.GLWidget.isInit())
+            {
+                this.GLWidget.addListener("sceneCreated", function(){
+                    this.changeMouseInteractorParams(interactorType);
+                },this);
+                return;
+            }           
+            
+            this.GLWidget.addController(interactorType);
+            
+            var controller = this.GLWidget.getController();
+            if(!controller){
+                this.debug("Error: changeMouseInteractorParams: No controller found.");
+                return;
+            }
+                
+            if(interactorType == "TrackballControls")
+            {               
+                controller.rotateSpeed = 1.0;
+                controller.zoomSpeed = 1.2;
+                controller.panSpeed = 0.8;
+                controller.noZoom = false;
+                controller.noPan = false;
+                controller.staticMoving = true;
+                controller.dynamicDampingFactor = 0.3;
+            }
+            else if (interactorType == "OrbitControls")
+            {
+                controller.target.y = 2;
+            }
         }
     }
 });
