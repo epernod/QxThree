@@ -52,6 +52,25 @@ qx.Class.define("qxthree.GLModel",
       /** @return {Object} 3D Three mesh of this model.*/
       threeMesh: function(){return this.__threeMesh;},
       
+      setPosition: function(x, y, z){
+          this.__threeMesh.position.x = x;
+          this.__threeMesh.position.y = y;
+          this.__threeMesh.position.z = z;
+      },
+      
+      setRotation: function(rotX, rotY, rotZ){
+          this.__threeMesh.rotation.x = rotX;
+          this.__threeMesh.rotation.y = rotY;
+          this.__threeMesh.rotation.z = rotZ;
+      },
+      
+      setScale: function(sX, sY, sZ){
+          this.__threeMesh.scale.x = sX;
+          this.__threeMesh.scale.y = sY;
+          this.__threeMesh.scale.z = sZ;
+      },
+            
+           
       /**
        * Main method to init this object only when GL context is ready.
        * Will be called by {@link qxthree.GLWidget.initGLModels method}
