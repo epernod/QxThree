@@ -75,6 +75,11 @@ qx.Class.define("qxthree.GLWidget", {
          */
         canvasWidth : function() {return this.__canvasWidth;},
         
+        /**
+         * @return {Boolean} if scene has already been init. 
+         */
+        isInit: function() {if (this.__threeScene) return true; else return false;},
+        
         
         /**
          * Internal Main method to init Three.js empty scene with default objects. 
@@ -133,27 +138,38 @@ qx.Class.define("qxthree.GLWidget", {
          * Method to add a Three TrackballController on the Three scene. Need to use plugin @see controls/TrackballControls
          * TODO add the parameter of the trackball as param of this method
          */
-        addController: function(){
+        addController: function(controllerType){
             if (!this.__threeScene){
                 this.debug("Scene not ready, will be added later");
                 this.addListenerOnce('sceneCreated',function(){
                     this.addController();
                 },this);
+                return;
             }
 
-            this.debug("has plugin TrackballControls: " + this._hasPlugin("TrackballControls"));
-            
-            if(this._hasPlugin("TrackballControls")){
-                this.__threeController = new THREE.TrackballControls( this.__threeCamera );
-                this.__threeController.rotateSpeed = 1.0;
-                this.__threeController.zoomSpeed = 1.2;
-                this.__threeController.panSpeed = 0.8;
-                this.__threeController.noZoom = false;
-                this.__threeController.noPan = false;
-                this.__threeController.staticMoving = true;
-                this.__threeController.dynamicDampingFactor = 0.3;
+            if(this._hasPlugin(controllerType))
+            {
+                // if already a controller remove it
+                if (this.__threeController)
+                    delete this.__threeController;
+                
+                // TODO find if there is a way to avoid that switch
+                if (controllerType == "TrackballControls")
+                    this.__threeController = new THREE.TrackballControls( this.__threeCamera );
+                else if (controllerType == "OrbitControls")
+                    this.__threeController = new THREE.OrbitControls( this.__threeCamera );
             }
+            else
+            {
+                this.debug("No plugin found for controller type: " + controllerType);    
+                return;
+            }            
         },
+        
+        /**
+         * @return {Pointer} to this.__threeController oin order to set params
+         */
+        getController: function() {return this.__threeController;},
 
         /**
          * Method to add a @param model {qxthree.GLModel}. 
