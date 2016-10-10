@@ -132,7 +132,7 @@ qx.Class.define("qxthree.GLWidget", {
             this.fireDataEvent('sceneCreated');
             
             // Start animation loop
-            this.updateGL();
+            this._animate();
         },               
 
         /**
@@ -274,22 +274,22 @@ qx.Class.define("qxthree.GLWidget", {
          * Will start the animation if not already running.
          */
         animate: function(value){
-            var previous = this.__animate; 
             this.__animate = value;
-            if (value && !previous) // need to restart
-                this._animate();
         },
         
+        /**
+         * Main loop to animate the 3D scene. Call a each frame refresh.
+         */
         _animate: function()
         {
-            // call animate method of each GLObject
-            for (var i=0; i<this.__GLModels.length; i++)
-                this.__GLModels.getItem(i).animate();
+            if (this.__animate){
+                // call animate method of each GLObject
+                for (var i=0; i<this.__GLModels.length; i++)
+                    this.__GLModels.getItem(i).animate();
+            }
 
-            this.updateGL();
-
-            if (this.__animate)
-                requestAnimationFrame( this._animate.bind(this) );                      
+            this.updateGL();            
+            requestAnimationFrame( this._animate.bind(this) );                      
         },
 
         /**
