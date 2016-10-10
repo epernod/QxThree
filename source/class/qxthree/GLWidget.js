@@ -116,6 +116,10 @@ qx.Class.define("qxthree.GLWidget", {
             this.__threeRenderer.setPixelRatio( 1 );
             this.__threeRenderer.setSize( this.__canvasWidth, this.__canvasHeight );
             
+            var light = new THREE.DirectionalLight( 0xffffff, 1 );
+            light.position.set( 1, 1, 1 ).normalize();
+            this.__threeScene.add( light );
+            
             // Init current list of glModels
             for (var i=0; i<this.__GLModels.length; i++)
             {   
@@ -226,7 +230,6 @@ qx.Class.define("qxthree.GLWidget", {
                 this.__GLModels.push(model);
                 if (this.__threeScene)
                 {
-                    this.debug("Added in method");
                     if (!model.isInit())
                         model.initGL();
                     
@@ -349,4 +352,3 @@ qx.Class.define("qxthree.GLWidget", {
         }
     }
 });
-

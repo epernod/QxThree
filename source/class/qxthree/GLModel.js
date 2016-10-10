@@ -20,11 +20,15 @@
 qx.Class.define("qxthree.GLModel",
 {
   extend : qx.core.Object,
-  
-  construct : function(id)
+   
+  construct : function(id, meshCreationMethod, geometry, material, postCreationMethod)
   {
       this.base(arguments);
       this.__id = id;
+      this.__meshCreationMethod = meshCreationMethod;
+      this.__geometry = geometry;
+      this.__material = material;
+      this.__postCreationMethod = postCreationMethod;
   },
   
   members :
@@ -38,6 +42,17 @@ qx.Class.define("qxthree.GLModel",
       __isInit: false,
       
       __isRegistered: false,
+      
+      /** Pointer to mesh creation method */
+      __meshCreationMethod: null,
+      
+      __postCreationMethod: null,
+      
+      /** Pointer to the Three geometry object */
+      __geometry: null,
+      
+      /** Pointer to the Three material object */
+      __material: null,
       
       /** @return {String} id of this model.*/
       id: function() {return this.__id;},
@@ -78,12 +93,23 @@ qx.Class.define("qxthree.GLModel",
        */
       initGL: function()
       {
-          this.debug("initGL GLModel, " + this.__id +" isInit: "+ this.__isInit);
-          var geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
-          var texture = new THREE.TextureLoader().load( 'resource/crate.gif' );
-          var material = new THREE.MeshBasicMaterial( { map: texture } );
-          this.__threeMesh = new THREE.Mesh( geometry, material );
-          this.__isInit = true;
+          if (this.__meshCreationMethod){
+              this.__threeMesh = this.__meshCreationMethod();                         
+              
+              if(this.__postCreationMethod)
+                  this.__postCreationMethod();
+              
+              this.__isInit = true;
+          }
+          else if (this.__geometry && this.__material)
+          {
+              this.__threeMesh = new THREE.Mesh( this.__geometry, this.__material );
+              
+              if(this.__postCreationMethod)
+                  this.__postCreationMethod();
+              
+              this.__isInit = true;
+          }
       },
       
       /**
