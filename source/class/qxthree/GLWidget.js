@@ -40,6 +40,7 @@ qx.Class.define("qxthree.GLWidget", {
         
         this.addListener("trackstart", this.__onTrackStart, this);
         this.addListener("track", this.__onTrack, this);
+        this.addListener("keypress", this.__handleKeyPress, this);
     },
 
     events : {
@@ -172,6 +173,46 @@ qx.Class.define("qxthree.GLWidget", {
         getController: function() {return this.__threeController;},
 
         /**
+         * Method to render or hide the 3D axis of the scene.
+         */
+        showAxis: function()
+        {
+            if (!this.__threeScene)
+                return;
+            
+            var axisObject = this.__threeScene.getObjectByName("sceneAxis");
+            if (axisObject)
+                axisObject.visible = !axisObject.visible;
+            else // first time, need to create the axis object
+            {
+                axisObject = new THREE.AxisHelper( this.__canvasHeight*0.5 );
+                axisObject.name = "sceneAxis";
+                this.__threeScene.add(axisObject);
+            }
+        },
+        
+        /**
+         * Method to render or hide plan grid in the scene. Plan is at y = 0.
+         */
+        showGrid: function()
+        {
+            if (!this.__threeScene)
+                return;
+            
+            var gridObject = this.__threeScene.getObjectByName("sceneGrid");
+            if (gridObject)
+                gridObject.visible = !gridObject.visible;
+            else // first time, need to create the axis object
+            {
+                gridObject = new THREE.GridHelper( 1000, 100 );
+                gridObject.material.opacity = 0.4;
+                gridObject.material.transparent = true;
+                gridObject.name = "sceneGrid";
+                this.__threeScene.add(gridObject);
+            }          
+        },
+        
+        /**
          * Method to add a @param model {qxthree.GLModel}. 
          * This model will be added to @see __GLModels
          * If scene is already runnin, model will be init and mesh will be added to the scene
@@ -252,7 +293,7 @@ qx.Class.define("qxthree.GLWidget", {
         },
 
         /**
-         * callback method when @see trackstart {event} is catched
+         * callback method when @see trackstart {event} is catched. @param trackEvent
          */
         __onTrackStart: function(trackEvent) {
             if (qx.core.Environment.get("qx.debug") && this.__logEvents){
@@ -261,7 +302,7 @@ qx.Class.define("qxthree.GLWidget", {
         },
         
         /**
-         * callback method when @see track {event} is catched
+         * callback method when @see track {event} is catched. @param trackEvent
          */
         __onTrack: function(trackEvent){
             if (qx.core.Environment.get("qx.debug") && this.__logEvents){
@@ -269,7 +310,27 @@ qx.Class.define("qxthree.GLWidget", {
             }
             this.updateGL();
         },
-        
+                
+        /**
+         * Handle key press events:
+         * @param keyEvent
+         *            {qx.event.type.KeySequence} Key event
+         */
+        __handleKeyPress: function(keyEvent){
+            if (qx.core.Environment.get("qx.debug") && this.__logEvents){
+                this.debug("Event: GLWidget::__handleKeyPress");
+            }
+            
+            var type = keyEvent.getKeyIdentifier();
+            var ctrl = keyEvent.isCtrlPressed();
+            
+            if(type == 'A')
+                this.showAxis();
+            else if(type == 'G')
+                this.showGrid();
+            
+            this.updateGL();
+        },        
         
         /**
          * Main method to render the 3D scene, should be called each time the rendering need to be updated
