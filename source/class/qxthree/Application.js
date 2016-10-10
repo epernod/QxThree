@@ -50,7 +50,8 @@ qx.Class.define("qxthree.Application",
         Below is your actual application code...
       -------------------------------------------------------------------------
       */
-
+      file:///home/epernod/utilities/three.js/examples/webgl_physics_cloth.html
+          https://threejs.org/examples/?q=intera#webgl_interactive_cubes
       // Document is the application root
       var doc = this.getRoot();
 
