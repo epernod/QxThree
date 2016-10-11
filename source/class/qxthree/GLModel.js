@@ -99,6 +99,7 @@ qx.Class.define("qxthree.GLModel",
               if(this.__postCreationMethod)
                   this.__postCreationMethod();
               
+              this.__threeMesh.name = this.__id;
               this.__isInit = true;
           }
           else if (this.__geometry && this.__material)
@@ -108,6 +109,7 @@ qx.Class.define("qxthree.GLModel",
               if(this.__postCreationMethod)
                   this.__postCreationMethod();
               
+              this.__threeMesh.name = this.__id;
               this.__isInit = true;
           }
       },
