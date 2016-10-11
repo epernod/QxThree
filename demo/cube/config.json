@@ -62,7 +62,15 @@
           "manifest" : "../../Manifest.json"
         }
       ]
-    }
+    },
+    "source" :
+    {   
+      "lint-check" : { 
+        "allowed-globals" : [ 
+           "THREE"
+        ]   
+      }   
+    }   
 
     // If you want to tweak a job setting, see the following sample where
     // the "format" feature of the "build-script" job is overridden.
