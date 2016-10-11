@@ -90,7 +90,7 @@ qx.Class.define("interactions.Application",
             // Create geometry object
             var geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
                         
-            for ( var i = 0; i < 2000; i ++ ) 
+            for ( var i = 0; i < 500; i ++ ) 
             {                              
                 var mat = new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } );
                 var glCube = new qxthree.GLModel("cube_"+Number(i), null, geometry, mat, 
@@ -101,7 +101,8 @@ qx.Class.define("interactions.Application",
                 }, this);
 
                 this.GLWidget.addGLModel(glCube);            
-            }          
+            }
+            this.GLWidget.addRayCaster();
         },
         
         initWindow: function()
