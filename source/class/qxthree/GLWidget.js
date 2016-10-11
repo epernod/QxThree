@@ -49,8 +49,7 @@ qx.Class.define("qxthree.GLWidget", {
 
     members : {
         /** members */
-        __canvasHeight: 400,
-        __canvasWidth: 400,
+        __canvasBounds: null,
         
         __logEvents: false,
         __animate: false,
@@ -64,17 +63,23 @@ qx.Class.define("qxthree.GLWidget", {
         /** Three.js controller object */
         __threeController: null,
         
+        /** Three.js raycaster object */
+        __threeRayCaster: null,        
+        
         __GLModels: null,
+        
+        __mousePosition: null,
+        __intersected: null,
         
         /**
          * @return {Integer} of the canvas height.
          */
-        canvasHeight : function() {return this.__canvasHeight;},
+        canvasHeight : function() {return this.__canvasBounds.height;},
         
         /**
          * @return {Integer} of the canvas width.
          */
-        canvasWidth : function() {return this.__canvasWidth;},
+        canvasWidth : function() {return this.__canvasBounds.width;},
         
         /**
          * @return {Boolean} if scene has already been init. 
@@ -100,11 +105,14 @@ qx.Class.define("qxthree.GLWidget", {
             }
             
             // Init Three canvas with current widget size
-            this.__canvasHeight = this.getBounds().height;
-            this.__canvasWidth = this.getBounds().width;
+            this.__canvasBounds = this.getBounds();
+            
+            this.__mousePosition = new THREE.Vector2()
+            this.__mousePosition.x = 0;
+            this.__mousePosition.y = 0;
 
             // Init the Three.PerspectiveCamera
-            this.__threeCamera = new THREE.PerspectiveCamera( 70, this.__canvasWidth / this.__canvasHeight, 0.1, 1000 );
+            this.__threeCamera = new THREE.PerspectiveCamera( 70, this.__canvasBounds.width / this.__canvasBounds.height, 0.1, 1000 );
             // Add default position of the camera
             this.__threeCamera.position.z = 400;
             
@@ -114,9 +122,10 @@ qx.Class.define("qxthree.GLWidget", {
             // Init the webgl renderer
             this.__threeRenderer = new THREE.WebGLRenderer();
             this.__threeRenderer.setPixelRatio( 1 );
-            this.__threeRenderer.setSize( this.__canvasWidth, this.__canvasHeight );
+            this.__threeRenderer.setSize( this.__canvasBounds.width, this.__canvasBounds.height );
             
             var light = new THREE.DirectionalLight( 0xffffff, 1 );
+            light.name = "defaultLight";
             light.position.set( 1, 1, 1 ).normalize();
             this.__threeScene.add( light );
             
@@ -145,7 +154,7 @@ qx.Class.define("qxthree.GLWidget", {
          */
         addController: function(controllerType){
             if (!this.__threeScene){
-                this.debug("Scene not ready, will be added later");
+                this.debug("Scene not ready, controller will be added later");
                 this.addListenerOnce('sceneCreated',function(){
                     this.addController();
                 },this);
@@ -175,6 +184,22 @@ qx.Class.define("qxthree.GLWidget", {
          * @return {Pointer} to this.__threeController oin order to set params
          */
         getController: function() {return this.__threeController;},
+        
+        /**
+         * 
+         */
+        addRayCaster: function(){
+            if (!this.__threeScene){
+                this.debug("Scene not ready, rayCaster will be added later");
+                this.addListenerOnce('sceneCreated',function(){
+                    this.addRayCaster();
+                },this);
+                return;
+            }
+            
+            if (!this.__threeRayCaster)
+                this.__threeRayCaster = new THREE.Raycaster();
+        },
 
         /**
          * Method to render or hide the 3D axis of the scene.
@@ -189,7 +214,7 @@ qx.Class.define("qxthree.GLWidget", {
                 axisObject.visible = !axisObject.visible;
             else // first time, need to create the axis object
             {
-                axisObject = new THREE.AxisHelper( this.__canvasHeight*0.5 );
+                axisObject = new THREE.AxisHelper( this.__canvasBounds.height*0.5 );
                 axisObject.name = "sceneAxis";
                 this.__threeScene.add(axisObject);
             }
@@ -258,16 +283,15 @@ qx.Class.define("qxthree.GLWidget", {
          */
         onResize: function()
         {   
-            this.__canvasHeight = this.getBounds().height;
-            this.__canvasWidth = this.getBounds().width;
-            
+            this.__canvasBounds = this.getBounds();
+                        
             if(!this.__threeRenderer || !this.__threeCamera)
                 return;           
                        
-            this.__threeCamera.aspect = this.__canvasWidth / this.__canvasHeight;
+            this.__threeCamera.aspect = this.__canvasBounds.width / this.__canvasBounds.height;
             this.__threeCamera.updateProjectionMatrix();
             
-            this.__threeRenderer.setSize( this.__canvasWidth, this.__canvasHeight );
+            this.__threeRenderer.setSize( this.__canvasBounds.width, this.__canvasBounds.height );
 
             this.updateGL();
         },
@@ -294,6 +318,46 @@ qx.Class.define("qxthree.GLWidget", {
             this.updateGL();            
             requestAnimationFrame( this._animate.bind(this) );                      
         },
+        
+        /**
+         * 
+         */
+        _computeRayIntersection: function()
+        {
+            if(!this.__threeRayCaster)
+                return;
+            
+            var intersects = this.__threeRayCaster.intersectObjects( this.__threeScene.children );
+            if ( intersects.length > 0 ) 
+            {              
+                for(var i=0; i<intersects.length; i++)
+                {
+//                    this.debug("intersects: " + i + " => " + intersects[ i ].object.name);
+                    if (intersects[ i ].object.name == "sceneGrid" || intersects[ i ].object.name == "sceneAxis")
+                        continue;
+            
+                    if ( intersects[ i ].object && this.__intersected != intersects[ i ].object ) 
+                    {                 
+                        this.debug("inter: " + i + " => " + intersects[ i ].object.name);
+                        if ( this.__intersected ) 
+                            this.__intersected.material.emissive.setHex( this.__intersected.currentHex );
+
+                        this.__intersected = intersects[ i ].object;
+                        this.__intersected.currentHex = this.__intersected.material.emissive.getHex();
+                        this.__intersected.material.emissive.setHex( 0xff0000 );
+                        
+                        return;
+                    }
+                }
+            } 
+            else 
+            {
+                if ( this.__intersected ) 
+                    this.__intersected.material.emissive.setHex( this.__intersected.currentHex );
+
+                this.__intersected = null;
+            }
+        },
 
         /**
          * callback method when @see trackstart {event} is catched. @param trackEvent
@@ -311,6 +375,17 @@ qx.Class.define("qxthree.GLWidget", {
             if (qx.core.Environment.get("qx.debug") && this.__logEvents){
                 this.debug("Event: GLWidget::__onTrack");
             }
+            
+            var width  = parseInt(qx.bom.Document.getWidth());
+            var height  = parseInt(qx.bom.Document.getHeight());
+            this.__mousePosition.x = ((trackEvent.getDocumentLeft()/* - this.__canvasBounds.left*/) / width)*2 - 1;
+            this.__mousePosition.y = - ((trackEvent.getDocumentTop()/* - this.__canvasBounds.top*/) / height)*2 + 1;
+                         
+//            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+//            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+//            this.debug("mouse: " + trackEvent.getViewportLeft() + " | " + trackEvent.getViewportTop());
+//            this.debug("mouse final: " + this.__mousePosition.x + " | " + this.__mousePosition.y);
+            
             this.updateGL();
         },
                 
@@ -333,7 +408,7 @@ qx.Class.define("qxthree.GLWidget", {
                 this.showGrid();
             
             this.updateGL();
-        },        
+        },
         
         /**
          * Main method to render the 3D scene, should be called each time the rendering need to be updated
@@ -345,7 +420,12 @@ qx.Class.define("qxthree.GLWidget", {
             
             // Call update of the controller if set
             if (this.__threeController)
-                this.__threeController.update();            
+                this.__threeController.update();
+            
+            if (this.__threeRayCaster){
+                this.__threeRayCaster.setFromCamera( this.__mousePosition, this.__threeCamera );
+                this._computeRayIntersection();
+            }
             
             // Update the rendering
             this.__threeRenderer.render( this.__threeScene, this.__threeCamera );
