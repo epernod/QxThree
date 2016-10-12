@@ -181,9 +181,19 @@ qx.Class.define("qxthree.GLWidget", {
         },
         
         /**
-         * @return {Pointer} to this.__threeController oin order to set params
+         * @return {Pointer} to this.__threeController in order to set params
          */
         getController: function() {return this.__threeController;},
+        
+        /**
+         * @return {Pointer} to this.__threeCamera in order to set params
+         */
+        getCamera: function() {return this.__threeCamera;},
+        
+        /**
+         * @return {Pointer} to this.__threeRenderer in order to set params
+         */
+        getRenderer: function() {return this.__threeRenderer;},
         
         /**
          * 
@@ -272,7 +282,7 @@ qx.Class.define("qxthree.GLWidget", {
         _addThreeMesh: function(model)
         {
             if (!model.isRegistered()){
-                this.__threeScene.add( model.threeMesh() );
+                this.__threeScene.add( model.threeModel() );
                 model.setRegistered(true);
             }
         },
