@@ -37,6 +37,11 @@ qx.Class.define("material.Application",
         ballMat: null,
         bulbMat: null,
         
+        // TODO set params choices like in Three example
+        exposure: 0.68,
+        bulbLuminousPowers: 400,
+        hemiLuminousIrradiances: 0.0001,
+        
         /**
          * This method contains the initial application code and gets called 
          * during startup of the application
@@ -102,6 +107,7 @@ qx.Class.define("material.Application",
             renderer.gammaOutput = true;
             renderer.shadowMap.enabled = true;
             renderer.toneMapping = THREE.ReinhardToneMapping;
+            renderer.toneMappingExposure = Math.pow( this.exposure, 5.0 );
           
             // start animation
             this.GLWidget.animate(true);
@@ -240,6 +246,7 @@ qx.Class.define("material.Application",
                 bulbLight.add( new THREE.Mesh( this.bulbGeometry, this.bulbMat ) );
                 bulbLight.position.set( 0, 2, 0 );
                 bulbLight.castShadow = true;
+                bulbLight.power = this.bulbLuminousPowers;
                 return bulbLight;
             }.bind(this), null, function(){
                 var time = Date.now() * 0.0005;
@@ -251,7 +258,7 @@ qx.Class.define("material.Application",
             // add hemisphere light
             var GLHemiLight = new qxthree.GLModel("EmiLight", function(){
                 var hemiLight = new THREE.HemisphereLight( 0xddeeff, 0x0f0e0d, 0.02 );
-                hemiLight.intensity = 0.0001;
+                hemiLight.intensity = this.hemiLuminousIrradiances;
                 return hemiLight;
             }.bind(this), null, null);
             this.GLWidget.addGLModel(GLHemiLight);
