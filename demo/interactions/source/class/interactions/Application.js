@@ -102,6 +102,14 @@ qx.Class.define("interactions.Application",
                 this.GLWidget.addGLModel(glCube);            
             }
             this.GLWidget.addRayCaster();
+            
+            // create light
+            var GLDirLight = new qxthree.GLModel("defaultLight", function(){
+                var light = new THREE.DirectionalLight( 0xffffff, 1 );
+                light.position.set( 1, 1, 1 ).normalize(); 
+                return light;
+            }.bind(this), null, null);
+            this.GLWidget.addGLModel(GLDirLight);
         },
         
         initWindow: function()

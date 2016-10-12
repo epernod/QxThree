@@ -124,11 +124,6 @@ qx.Class.define("qxthree.GLWidget", {
             this.__threeRenderer.setPixelRatio( 1 );
             this.__threeRenderer.setSize( this.__canvasBounds.width, this.__canvasBounds.height );
             
-            var light = new THREE.DirectionalLight( 0xffffff, 1 );
-            light.name = "defaultLight";
-            light.position.set( 1, 1, 1 ).normalize();
-            this.__threeScene.add( light );
-            
             // Init current list of glModels
             for (var i=0; i<this.__GLModels.length; i++)
             {   
