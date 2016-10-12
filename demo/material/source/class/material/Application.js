@@ -11,7 +11,6 @@
 /**
  * This is the main application class of your custom application "material"
  *
- * @asset(material/*)
  */
 qx.Class.define("material.Application",
         {
@@ -32,9 +31,11 @@ qx.Class.define("material.Application",
          */
         GLWidget: null,
         
+        // material objects, need member for callbacks methods
         floorMat: null,
         cubeMat: null,
         ballMat: null,
+        bulbMat: null,
         
         /**
          * This method contains the initial application code and gets called 
@@ -86,13 +87,24 @@ qx.Class.define("material.Application",
             // Set a default mode of interactor
             this.GLWidget.addController("OrbitControls");
             
-            this.GLWidget.showGrid();
+            //this.GLWidget.showGrid();
             
             // update camera position
             var camera = this.GLWidget.getCamera();
             camera.position.x = -4;
             camera.position.z = 4;
             camera.position.y = 2;
+            
+            // update renderer
+            var renderer = this.GLWidget.getRenderer();
+            renderer.physicallyCorrectLights = true;
+            renderer.gammaInput = true;
+            renderer.gammaOutput = true;
+            renderer.shadowMap.enabled = true;
+            renderer.toneMapping = THREE.ReinhardToneMapping;
+          
+            // start animation
+            this.GLWidget.animate(true);
         },
         
         initMeshes: function()
@@ -132,10 +144,10 @@ qx.Class.define("material.Application",
             }.bind(this) );
                         
             var floorGeometry = new THREE.PlaneBufferGeometry( 20, 20 );                       
-            var floorMesh = new qxthree.GLModel("floor", null, floorGeometry, this.floorMat, 
+            var floorMesh = new qxthree.GLMeshModel("floor", null, floorGeometry, this.floorMat, 
                     function(){
-                this.__threeMesh.receiveShadow = true;
-                this.__threeMesh.rotation.x = -Math.PI / 2.0;
+                this._threeModel.receiveShadow = true;
+                this._threeModel.rotation.x = -Math.PI / 2.0;
             });                       
             this.GLWidget.addGLModel(floorMesh);
             
@@ -164,13 +176,28 @@ qx.Class.define("material.Application",
                 this.cubeMat.needsUpdate = true;
             }.bind(this) );
 
+            // Add cubes            
             var boxGeometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
-            var boxMesh = new qxthree.GLModel("box1", null, boxGeometry, this.cubeMat, 
+            var boxMesh1 = new qxthree.GLMeshModel("box1", null, boxGeometry, this.cubeMat, 
                     function(){
-                this.__threeMesh.position.set( -0.5, 0.25, -1 );
-                this.__threeMesh.castShadow = true;
+                this._threeModel.position.set( -0.5, 0.25, -1 );
+                this._threeModel.castShadow = true;
             });                       
-            this.GLWidget.addGLModel(boxMesh);
+            this.GLWidget.addGLModel(boxMesh1);
+            
+            var boxMesh2 = new qxthree.GLMeshModel("box2", null, boxGeometry, this.cubeMat, 
+                    function(){
+                this._threeModel.position.set( 0, 0.25, -5 );
+                this._threeModel.castShadow = true;
+            });                       
+            this.GLWidget.addGLModel(boxMesh2);
+            
+            var boxMesh3 = new qxthree.GLMeshModel("box3", null, boxGeometry, this.cubeMat, 
+                    function(){
+                this._threeModel.position.set( 7, 0.25, 0 );
+                this._threeModel.castShadow = true;
+            });                       
+            this.GLWidget.addGLModel(boxMesh3);
             
             
             // create world ball mat
@@ -191,14 +218,43 @@ qx.Class.define("material.Application",
             }.bind(this) );
             
             var ballGeometry = new THREE.SphereGeometry( 0.5, 32, 32 );
-            var ballMesh = new qxthree.GLModel("planet", null, ballGeometry, this.ballMat, 
+            var ballMesh = new qxthree.GLMeshModel("planet", null, ballGeometry, this.ballMat, 
                     function(){
-                this.__threeMesh.position.set( 1, 0.5, 1 );
-                this.__threeMesh.rotation.y = Math.PI;
-                this.__threeMesh.castShadow = true;
+                this._threeModel.position.set( 1, 0.5, 1 );
+                this._threeModel.rotation.y = Math.PI;
+                this._threeModel.castShadow = true;
             });                       
             this.GLWidget.addGLModel(ballMesh);            
+           
             
+            // create buld light
+            this.bulbGeometry = new THREE.SphereGeometry( 0.02, 16, 8 );
+            this.bulbMat = new THREE.MeshStandardMaterial( {
+                emissive: 0xffffee,
+                emissiveIntensity: 1,
+                color: 0x000000
+            });
+            
+            var GLBulbLight = new qxthree.GLModel("bulbLight", function(){
+                var bulbLight = new THREE.PointLight( 0xffee88, 1, 100, 2 );
+                bulbLight.add( new THREE.Mesh( this.bulbGeometry, this.bulbMat ) );
+                bulbLight.position.set( 0, 2, 0 );
+                bulbLight.castShadow = true;
+                return bulbLight;
+            }.bind(this), null, function(){
+                var time = Date.now() * 0.0005;
+                this._threeModel.position.y = Math.cos( time ) * 0.75 + 1.25;
+            });
+            this.GLWidget.addGLModel(GLBulbLight);
+            
+            
+            // add hemisphere light
+            var GLHemiLight = new qxthree.GLModel("EmiLight", function(){
+                var hemiLight = new THREE.HemisphereLight( 0xddeeff, 0x0f0e0d, 0.02 );
+                hemiLight.intensity = 0.0001;
+                return hemiLight;
+            }.bind(this), null, null);
+            this.GLWidget.addGLModel(GLHemiLight);
         },
         
         initWindow: function()
@@ -228,7 +284,7 @@ qx.Class.define("material.Application",
                     });
             win.setLayout(new qx.ui.layout.Grow());
             win.addListener('appear', function() {
-                win.center();
+                win.maxi
             });
             win.add(this.GLWidget);
             win.open();        
