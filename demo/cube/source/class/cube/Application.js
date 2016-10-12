@@ -64,12 +64,15 @@ qx.Class.define("cube.Application",
           this.GLWidget = new qxthree.GLWidget();
 
           // Create cube and add it to the 3D scene (will be init after scene)
-          var glCube = new qxthree.GLModel("test1", function() {
-              var geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
+          var glCube = new qxthree.GLMeshModel("test1", function() {
+              this._geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
               var texture = new THREE.TextureLoader().load( 'resource/crate.gif' );
-              var material = new THREE.MeshBasicMaterial( { map: texture } );
-              return new THREE.Mesh( geometry, material );
-          }, this);
+              this._material = new THREE.MeshBasicMaterial( { map: texture } );
+              return new THREE.Mesh( this._geometry, this._material );
+          }, null, null, null, function() {
+              this._threeModel.rotation.x += 0.005;
+              this._threeModel.rotation.y += 0.01;
+          });
           this.GLWidget.addGLModel(glCube);
 
           this.GLWidget.addListener("scriptLoaded", this.scenePostProcess, this);

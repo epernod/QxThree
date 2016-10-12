@@ -11,7 +11,6 @@
 /**
  * This is the main application class of your custom application "interactions"
  *
- * @asset(interactions/*)
  */
 qx.Class.define("interactions.Application",
         {
@@ -93,12 +92,12 @@ qx.Class.define("interactions.Application",
             for ( var i = 0; i < 500; i ++ ) 
             {                              
                 var mat = new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } );
-                var glCube = new qxthree.GLModel("cube_"+Number(i), null, geometry, mat, 
+                var glCube = new qxthree.GLMeshModel("cube_"+Number(i), null, geometry, mat, 
                             function(){
                     this.setPosition(Math.random() * 800 - 400, Math.random() * 800 - 400, Math.random() * 800 - 400);
                     this.setRotation(Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI);
                     this.setScale(Math.random() + 0.5, Math.random() + 0.5, Math.random() + 0.5);
-                }, this);
+                });
 
                 this.GLWidget.addGLModel(glCube);            
             }
