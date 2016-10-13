@@ -11,6 +11,13 @@
 /**
  * This is the main application class of your custom application "material"
  *
+ * @asset(textures/hardwood2_diffuse.jpg)
+ * @asset(textures/hardwood2_bump.jpg)
+ * @asset(textures/hardwood2_roughness.jpg)
+ * @asset(textures/brick_diffuse.jpg)
+ * @asset(textures/brick_bump.jpg)
+ * @asset(textures/planets/earth_atmos_2048.jpg)
+ * @asset(textures/planets/earth_specular_2048.jpg)
  */
 qx.Class.define("material.Application",
         {

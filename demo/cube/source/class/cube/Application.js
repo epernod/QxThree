@@ -11,6 +11,7 @@
 /**
  * This is the main application class of your custom application "cube"
  *
+ * @asset(crate.gif)
  */
 qx.Class.define("cube.Application",
 {
