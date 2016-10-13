@@ -28,7 +28,7 @@ qx.Class.define("qxthree.GLWidget", {
         this.__GLModels = new qx.data.Array();
         
         // Three.js scripts need to be loaded first. This will fired event scriptLoaded 
-        this.__setup(plugins);
+        this._setup(plugins);
         
         // Method to init the scene as soon as Three.js has been loaded
         this.addListener("scriptLoaded", this._initScene, this);

@@ -59,13 +59,13 @@ qx.Mixin.define("qxthree.MixinGLRenderer", {
         _hasPlugin: function(targetPlugin)
         {
             for (var scriptName in qxthree.MixinGLRenderer.LOADED){
-                if (scriptName.includes(targetPlugin))
+                if (scriptName.indexOf(targetPlugin)> -1)
                     return true;
             } 
             return false;
         },
         
-        __setup: function(plugins)
+        _setup: function(plugins)
         {
             var min = '.min';
             if (qx.core.Environment.get("qx.debug")) {
@@ -91,8 +91,6 @@ qx.Mixin.define("qxthree.MixinGLRenderer", {
         },
         
         __addCanvas: function (){
-            this.debug("__addCanvas");
-            
             this.fireDataEvent('scriptLoaded');
         },
         
