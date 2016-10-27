@@ -23,13 +23,9 @@ qx.Class.define("qxthree.GLMeshModel",
    
   construct : function(id, meshCreationMethod, geometry, material, postCreationMethod, updateMethod)
   {
-      this.base(arguments);
-      this._id = id;
-      this._creationMethod = meshCreationMethod;
+      this.base(arguments, id, meshCreationMethod, postCreationMethod, updateMethod);
       this._geometry = geometry;
       this._material = material;
-      this._postCreationMethod = postCreationMethod;
-      this._updateMethod = updateMethod;      
   },
   
   members :
