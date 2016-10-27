@@ -19,7 +19,7 @@
 
 qx.Class.define("qxthree.GLMeshModel",
 {
-  extend : qxthree.GLModel,
+  extend : qxthree.BaseGLModel,
    
   construct : function(id, meshCreationMethod, geometry, material, postCreationMethod, updateMethod)
   {

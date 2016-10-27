@@ -247,7 +247,7 @@ qx.Class.define("qxthree.GLWidget", {
         },
         
         /**
-         * Method to add a @param model {qxthree.GLModel}. 
+         * Method to add a @param model {qxthree.BaseGLModel}. 
          * This model will be added to @see __GLModels
          * If scene is already runnin, model will be init and mesh will be added to the scene
          */
@@ -271,8 +271,8 @@ qx.Class.define("qxthree.GLWidget", {
         
         
         /**
-         * Internal Method to add a Three mesh from a @see qxthree.GLModel into the Three scene.
-         * Will set @see qxthree.GLModel.__isRegistered to {true}
+         * Internal Method to add a Three mesh from a @see qxthree.BaseGLModel into the Three scene.
+         * Will set @see qxthree.BaseGLModel.__isRegistered to {true}
          */
         _addThreeMesh: function(model)
         {

@@ -17,7 +17,7 @@
  * GLModel is the basic class for handling GL Model from Three.js inside qooxdoo framework
  */
 
-qx.Class.define("qxthree.GLModel",
+qx.Class.define("qxthree.BaseGLModel",
 {
   extend : qx.core.Object,
    

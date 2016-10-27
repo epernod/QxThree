@@ -248,7 +248,7 @@ qx.Class.define("material.Application",
                 color: 0x000000
             });
             
-            var GLBulbLight = new qxthree.GLModel("bulbLight", function(){
+            var GLBulbLight = new qxthree.BaseGLModel("bulbLight", function(){
                 var bulbLight = new THREE.PointLight( 0xffee88, 1, 100, 2 );
                 bulbLight.add( new THREE.Mesh( this.bulbGeometry, this.bulbMat ) );
                 bulbLight.position.set( 0, 2, 0 );
@@ -263,7 +263,7 @@ qx.Class.define("material.Application",
             
             
             // add hemisphere light
-            var GLHemiLight = new qxthree.GLModel("EmiLight", function(){
+            var GLHemiLight = new qxthree.BaseGLModel("EmiLight", function(){
                 var hemiLight = new THREE.HemisphereLight( 0xddeeff, 0x0f0e0d, 0.02 );
                 hemiLight.intensity = this.hemiLuminousIrradiances;
                 return hemiLight;
