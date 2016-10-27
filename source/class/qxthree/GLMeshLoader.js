@@ -17,14 +17,13 @@
  * GLModel is the basic class for handling GL Model from Three.js inside qooxdoo framework
  */
 
-qx.Class.define("qxthree.MeshLoader",
+qx.Class.define("qxthree.GLMeshLoader",
 {
-  extend : qx.core.Object,
+  extend : qxthree.BaseGLModel,
    
-  construct : function(id, url, onLoad, onProgress, onError)
+  construct : function(id, url, onLoad, onProgress, onError, postCreationMethod, updateMethod)
   {
-      this.base(arguments);
-      this._id = id;
+      this.base(arguments, id, null, postCreationMethod, updateMethod);
       this._url = url;
       this._onLoadMethod = onLoad;
       this._onProgressMethod = onProgress;
@@ -33,21 +32,12 @@ qx.Class.define("qxthree.MeshLoader",
   
   members :
   {   
-      /** id of this GLModel to identify it in the scene. */
-      _id: "",
-      
       /** url path of the the mesh to be loaded */
       _url:"",
-      
-      /** {Boolean} value reflecting if creation methods have been done. */
-      _isInit: false,
-      
-      /** {Boolean} value reflecting if three Model has is registered to the Three scene. */
-      _isRegistered: false,      
-                  
-      /** Three.js 3D Object loaded by this Object. */
-      _threeModel: null,
-      
+
+      /** {String} type of loader used in this class. */
+      _loaderType:"",
+
       /** Three.js loader depending on the file set by @see this._url */
       _threeLoader: null,
       
@@ -59,42 +49,19 @@ qx.Class.define("qxthree.MeshLoader",
       
       /** Pointer to mesh update method, If set will be called at each animation step. */
       _onErrorMethod: null,
-      
-      /** {Boolean} storing the status if mesh loading is done or not. */
-      _loaded: false,
-
-      /** {String} type of loader used in this class. */
-      _loaderType:"",
-                
-      /** @return {String} id of this model.*/
-      id: function() {return this._id;},
-      
-      /** @return {Boolean} loaded status of this loader.*/
-      isLoaded: function() {return this._loaded;},
             
-      /** @return {Object} 3D Three model encapsulated by this class.*/
-      threeModel: function(){return this._threeModel;},
+      /** @return {String} extension of the mesh to be loaded. */
+      loaderType: function() {return this._loaderType;},
       
-      /** @return {Boolean} init status of this model.*/
-      isInit: function() {return this._isInit;},
-      
-      /** @return {Boolean} @see _isRegistered status of this model.*/
-      isRegistered: function() {return this._isRegistered;},
-      /** Set {Boolean} @see _isRegistered status of this model.*/
-      setRegistered: function(value) {this._isRegistered = value;},
-
+      /** @return {Object} Pointer to the Three.js Loader Object. */
+      loaderType: function() {return this._loaderType;},
 
       
       /**
-       * Main method to init this object only when GL context is ready.
-       * Will be called by {@link qxthree.GLWidget.initGLModels method}
-       * Or will be called when object is added to the already running scene.
-       * Method will call:
-       * @see _creationMethod if set in the constructor or @see _initGLImpl 
-       * @see _initGLImpl should be overwrite by derived classes.
-       * @see _postCreationMethod if set in the constructor
+       * Implicit method called by @see initGL. This method should be overwritten
+       * by children classes
        */
-      initGL: function()
+      _initGLImpl: function()
       {
     	  // check the type of loader
     	  this._checkLoaderType();
@@ -135,6 +102,16 @@ qx.Class.define("qxthree.MeshLoader",
       },
       
       /**
+       * Implicit method called by @see animate. This method should be overwritten
+       * by children classes
+       */
+      _updateImpl: function()
+      {
+          if (!this._isInit)
+              return; 
+      },        
+      
+       /**
        * 
        */
       _checkLoaderType: function()
