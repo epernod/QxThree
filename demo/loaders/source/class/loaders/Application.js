@@ -92,6 +92,9 @@ qx.Class.define("loaders.Application",
             
             // Set a default mode of interactor
             this.GLWidget.addController("TrackballControls");
+            
+            // start animation
+            this.GLWidget.animate(true);
         },
         
         initMeshes: function()
@@ -111,8 +114,17 @@ qx.Class.define("loaders.Application",
             }, null, null);
             this.GLWidget.addGLModel(GLDirLight);
 
-            var mesh = new qxthree.GLMeshLoader("computer", "resource/mesh/male02.obj");
-            this.GLWidget.addGLModel(mesh);            
+            this.clock = new THREE.Clock();                        
+            // Add simple obj mesh
+            this.mesh = new qxthree.GLMeshLoader("computer", "resource/mesh/male02.obj",
+                    null, null, null, function(){
+                this.setPosition( 100.0, 0.0, 0.0 );
+            },
+            function(){
+                var delta = this.clock.getElapsedTime()*0.5;
+                this.mesh.setRotation( 0.0, Math.PI*delta, 0.0 );
+            }.bind(this));
+            this.GLWidget.addGLModel(this.mesh);
         }
         
     }
