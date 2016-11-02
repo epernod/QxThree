@@ -10,7 +10,12 @@
 
 /**
  * This is the main application class of your custom application "loaders"
- *
+ * 
+ * @asset(mesh/male02.obj)
+ * @asset(mesh/male02.mtl)
+ * @asset(mesh/01_-_Default1noCulling.JPG)
+ * @asset(mesh/male-02-1noCulling.JPG)
+ * @asset(mesh/orig_02_-_Defaul1noCulling.JPG)
  */
 qx.Class.define("loaders.Application",
         {
@@ -87,9 +92,6 @@ qx.Class.define("loaders.Application",
 
         scenePostProcess: function()
         {
-            this.debug("Scene has been created");
-            //this.GLWidget.animate(true);  
-            
             // Set a default mode of interactor
             this.GLWidget.addController("TrackballControls");
             

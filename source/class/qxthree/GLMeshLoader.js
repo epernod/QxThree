@@ -87,7 +87,8 @@ qx.Class.define("qxthree.GLMeshLoader",
     		  this._onProgressMethod = function(xhr){
     			  if (xhr.lengthComputable){
     				  var percentComplete = xhr.loaded / xhr.total * 100;
-    				  this.debug( this._id + " loading progress: " + Math.round(percentComplete, 2) + "%.");
+    				  if (qx.core.Environment.get("qx.debug"))
+    				      this.debug( this._id + " loading progress: " + Math.round(percentComplete, 2) + "%.");
     			  }
     		  }.bind(this);
     	  } 
@@ -102,7 +103,6 @@ qx.Class.define("qxthree.GLMeshLoader",
     		  this._onLoadMethod = function(object){
     			  this._threeModel = object;
     			  // Set object as init
-    			  this.debug( this._id + " onLoad: ");
     			  this._fireInitEvent();
     		  }.bind(this);
     	  }
@@ -134,7 +134,8 @@ qx.Class.define("qxthree.GLMeshLoader",
               return;
           
           this._loaderType = this._filename.substring(this._filename.lastIndexOf(".")+1);
-          this.debug("this._loaderType: " + this._loaderType);
+          if (qx.core.Environment.get("qx.debug"))
+              this.debug("this._loaderType: " + this._loaderType);
           
           if (this._loaderType == "obj")
         	  this._threeLoader = new THREE.OBJLoader();
