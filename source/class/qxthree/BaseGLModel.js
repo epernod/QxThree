@@ -112,10 +112,6 @@ qx.Class.define("qxthree.BaseGLModel",
           }
           else
               this._initGLImpl();
-          
-          // Call post processing method
-          if(this._postCreationMethod)
-              this._postCreationMethod();
       },
       
       /**
@@ -125,6 +121,10 @@ qx.Class.define("qxthree.BaseGLModel",
        */
       _fireInitEvent: function()
       {         
+          // Call post processing method
+          if(this._postCreationMethod)
+              this._postCreationMethod();
+          
           // Give the id name to the Three model
           this._threeModel.name = this._id;          
 
@@ -169,8 +169,7 @@ qx.Class.define("qxthree.BaseGLModel",
        */
       _updateImpl: function()
       {
-          if (!this._isInit)
-              return;          
+
       }
   }
 });
