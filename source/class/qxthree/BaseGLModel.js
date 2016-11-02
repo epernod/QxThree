@@ -30,6 +30,10 @@ qx.Class.define("qxthree.BaseGLModel",
       this._updateMethod = updateMethod;
   },
   
+  events : {
+      modelIsInit: 'qx.event.type.Event'
+  },
+  
   members :
   {   
       /** id of this GLModel to identify it in the scene. */
@@ -102,19 +106,33 @@ qx.Class.define("qxthree.BaseGLModel",
       initGL: function()
       {
           // Call either this._creationMethod if set, otherwise call this._initGLImpl
-          if (this._creationMethod)
+          if (this._creationMethod){
               this._threeModel = this._creationMethod();
+              this._fireInitEvent();
+          }
           else
               this._initGLImpl();
           
           // Call post processing method
           if(this._postCreationMethod)
               this._postCreationMethod();
+      },
+      
+      /**
+       * Method to propagate isInit information by sending event: @see modelIsInit
+       * Will also set @see _isInit to true for further use.
+       * This method should be called by @see _initGLImpl if no creation Method is passed.
+       */
+      _fireInitEvent: function()
+      {         
+          // Give the id name to the Three model
+          this._threeModel.name = this._id;          
 
           // Set object as init
           this._isInit = true;
-          // Give the id name to the Three model
-          this._threeModel.name = this._id;          
+          
+          // Propagate event is init
+          this.fireDataEvent('modelIsInit', this);
       },
       
       /**
@@ -143,7 +161,6 @@ qx.Class.define("qxthree.BaseGLModel",
               this._updateMethod();
           else
               this._updateImpl();
-              
       },
 
       /**

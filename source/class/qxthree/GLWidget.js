@@ -34,8 +34,6 @@ qx.Class.define("qxthree.GLWidget", {
         this.addListener("scriptLoaded", this._initScene, this);
         
         // Others listeners
-//        this.addListener("track", this.__onTrack, this);
-        
         this.addListener("resize", this.onResize, this);
         
         this.addListener("trackstart", this.__onTrackStart, this);
@@ -128,10 +126,16 @@ qx.Class.define("qxthree.GLWidget", {
             for (var i=0; i<this.__GLModels.length; i++)
             {   
                 var model = this.__GLModels.getItem(i);
-                if (!model.isInit())
+                if (!model.isInit()) // init and then register
+                {
+                    model.addListenerOnce('modelIsInit',function(_model){
+                        this._addThreeMesh(_model);
+                    },this);
+                    
                     model.initGL();
-
-                this._addThreeMesh(model);
+                }
+                else // register now                
+                    this._addThreeMesh(model);
             }
                         
             // Add webgl canvas to the current widget
@@ -264,11 +268,16 @@ qx.Class.define("qxthree.GLWidget", {
                 this.__GLModels.push(model);
                 if (this.__threeScene)
                 {
-                    if (!model.isInit())
+                    if (!model.isInit()) // init and then register
+                    {
+                        model.addListenerOnce('modelIsInit',function(ev){
+                            this._addThreeMesh(ev.getData());
+                        },this);
+                        
                         model.initGL();
-                    
-                    this._addThreeMesh(model);                    
-                    this.updateGL();
+                    }
+                    else // register now                
+                        this._addThreeMesh(model);                                       
                 }
             }            
         },
@@ -283,6 +292,7 @@ qx.Class.define("qxthree.GLWidget", {
             if (!model.isRegistered()){
                 this.__threeScene.add( model.threeModel() );
                 model.setRegistered(true);
+                this.updateGL();
             }
         },
         

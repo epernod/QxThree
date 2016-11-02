@@ -44,6 +44,9 @@ qx.Class.define("qxthree.GLMeshModel",
       {
           // default creation of a Three mesh
           this._threeModel = new THREE.Mesh( this._geometry, this._material );
+          
+          // fire init event
+          this._fireInitEvent();
       },
       
       /**

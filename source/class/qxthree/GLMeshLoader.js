@@ -92,7 +92,7 @@ qx.Class.define("qxthree.GLMeshLoader",
     			  this._threeModel = object;
     			  // Set object as init
     			  this.debug( this._id + " onLoad: ");
-    	          this._isInit = true;
+    			  this._fireInitEvent();
     		  }.bind(this);
     	  }
     	
