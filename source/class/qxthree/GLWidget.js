@@ -112,7 +112,7 @@ qx.Class.define("qxthree.GLWidget", {
             this.__mousePosition.y = 0;
 
             // Init the Three.PerspectiveCamera
-            this.__threeCamera = new THREE.PerspectiveCamera( 70, this.__canvasBounds.width / this.__canvasBounds.height, 0.1, 1000 );
+            this.__threeCamera = new THREE.PerspectiveCamera( 70, this.__canvasBounds.width / this.__canvasBounds.height, 0.1, 2000 );
             // Add default position of the camera
             this.__threeCamera.position.z = 400;
             
@@ -163,8 +163,12 @@ qx.Class.define("qxthree.GLWidget", {
                     delete this.__threeController;
                 
                 // TODO find if there is a way to avoid that switch
-                if (controllerType == "TrackballControls")
+                if (controllerType == "TrackballControls"){
                     this.__threeController = new THREE.TrackballControls( this.__threeCamera );
+                    this.__threeController.rotateSpeed = 1.0;
+                    this.__threeController.zoomSpeed = 0.1;
+                    this.__threeController.panSpeed = 0.1;
+                }
                 else if (controllerType == "OrbitControls")
                     this.__threeController = new THREE.OrbitControls( this.__threeCamera );
             }
