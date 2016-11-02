@@ -61,7 +61,7 @@ qx.Class.define("loaders.Application",
             var doc = this.getRoot();
             
             // List of plugins to load
-            var plugins = ['loaders/OBJLoader', 'controls/TrackballControls'];
+            var plugins = ['loaders/OBJLoader', 'loaders/MTLLoader', 'controls/TrackballControls'];
 
             // Create Gl Canvas
             this.GLWidget = new qxthree.GLWidget(plugins);
@@ -72,7 +72,7 @@ qx.Class.define("loaders.Application",
             this.GLWidget.addListener("sceneCreated", this.scenePostProcess, this);
 
             // Create qx window
-            var win = new qx.ui.window.Window('Three 3D Cube example').set(
+            var win = new qx.ui.window.Window('Three Obj Mesh loading example').set(
                     {
                         width : 500,
                         height : 500
@@ -114,9 +114,9 @@ qx.Class.define("loaders.Application",
             }, null, null);
             this.GLWidget.addGLModel(GLDirLight);
 
-            this.clock = new THREE.Clock();                        
             // Add simple obj mesh
-            this.mesh = new qxthree.GLMeshLoader("computer", "resource/mesh/male02.obj",
+            this.clock = new THREE.Clock();
+            this.mesh = new qxthree.GLMeshLoader("man_simple", "resource/mesh/", "male02.obj",
                     null, null, null, function(){
                 this.setPosition( 100.0, 0.0, 0.0 );
             },
@@ -125,6 +125,25 @@ qx.Class.define("loaders.Application",
                 this.mesh.setRotation( 0.0, Math.PI*delta, 0.0 );
             }.bind(this));
             this.GLWidget.addGLModel(this.mesh);
+            
+            
+            // Add a second obj mesh with mtl texture.
+            this.mesh2 = new qxthree.GLMeshLoader("man_textured", "resource/mesh/", "male02.obj",
+                    null, null, null, function(){
+                this.mesh2.setPosition( -100.0, 0.0, 0.0 );
+            }.bind(this),
+            function(){
+                var delta = this.clock.getElapsedTime()*0.5;
+                this.mesh2.setRotation( 0.0, Math.PI*delta, 0.0 );
+            }.bind(this));
+            
+            var mtlLoader = new qxthree.GLMeshLoader("man_mtl", "resource/mesh/", "male02.mtl",
+                    function( materials ) {
+                materials.preload();
+                this.mesh2.setMaterials(materials);
+                this.GLWidget.addGLModel(this.mesh2);
+            }.bind(this));
+            this.GLWidget.addGLModel(mtlLoader);
         }
         
     }
