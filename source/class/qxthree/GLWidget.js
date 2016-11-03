@@ -184,17 +184,22 @@ qx.Class.define("qxthree.GLWidget", {
         },
         
         /**
-         * @return {Pointer} to this.__threeController in order to set params
+         * @return {Pointer} to @see this.__threeScene in order to set params
+         */
+        getScene: function() {return this.__threeScene;},
+        
+        /**
+         * @return {Pointer} to @see this.__threeController in order to set params
          */
         getController: function() {return this.__threeController;},
         
         /**
-         * @return {Pointer} to this.__threeCamera in order to set params
+         * @return {Pointer} to @see this.__threeCamera in order to set params
          */
         getCamera: function() {return this.__threeCamera;},
         
         /**
-         * @return {Pointer} to this.__threeRenderer in order to set params
+         * @return {Pointer} to @see this.__threeRenderer in order to set params
          */
         getRenderer: function() {return this.__threeRenderer;},
         
