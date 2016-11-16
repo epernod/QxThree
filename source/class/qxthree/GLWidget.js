@@ -62,7 +62,7 @@ qx.Class.define("qxthree.GLWidget", {
         __threeController: null,
         
         /** Three.js raycaster object */
-        __threeRayCaster: null,        
+        __threeRayCaster: null,
         __rayCasterContinuous: false,
         
         __GLModels: null,
@@ -111,7 +111,7 @@ qx.Class.define("qxthree.GLWidget", {
             this.__mousePosition.y = 0;
 
             // Init the Three.PerspectiveCamera
-            this.__threeCamera = new THREE.PerspectiveCamera( 70, this.__canvasBounds.width / this.__canvasBounds.height, 0.1, 2000 );
+            this.__threeCamera = new THREE.PerspectiveCamera( 70, this.__canvasBounds.width / this.__canvasBounds.height, 0.1, 1000 );
             // Add default position of the camera
             this.__threeCamera.position.z = 400;
             
@@ -235,7 +235,7 @@ qx.Class.define("qxthree.GLWidget", {
                 }
             }
         },
-
+        
         /**
          * Method to render or hide the 3D axis of the scene.
          */
@@ -388,25 +388,39 @@ qx.Class.define("qxthree.GLWidget", {
             if(!this.__threeRayCaster)
                 return;
             
-            var intersects = this.__threeRayCaster.intersectObjects( this.__threeScene.children );
+            var objects = [];
+            for (var i=0; i<this.__GLModels.length; i++)
+            {
+                var model = this.__GLModels.getItem(i);
+                if (model.canIntersect()){
+                    objects.push(model.threeModel());   
+                }
+            }
+            
+            var old = this.__threeScene.children;
+                        
+            var intersects = this.__threeRayCaster.intersectObjects( objects );
             if ( intersects.length > 0 ) 
             {              
                 for(var i=0; i<intersects.length; i++)
-                {
-//                    this.debug("intersects: " + i + " => " + intersects[ i ].object.name);
-                    if (intersects[ i ].object.name == "sceneGrid" || intersects[ i ].object.name == "sceneAxis")
+                {           
+                    if ( !intersects[ i ].object)
                         continue;
-            
-                    if ( intersects[ i ].object && this.__intersected != intersects[ i ].object ) 
+                            
+                    var intersectObject = intersects[ i ].object;
+                    var nameIntersected = intersectObject.name;
+                    
+                    var model = this.getGLModel(nameIntersected);
+                    
+                    if(model != null && this.__intersected != model ) 
                     {                 
-                        this.debug("inter: " + i + " => " + intersects[ i ].object.name);
+                        this.debug("inter: " + i + " => " + model.id());
                         if ( this.__intersected ) 
-                            this.__intersected.material.emissive.setHex( this.__intersected.currentHex );
+                            this.__intersected.unIntersect();
 
-                        this.__intersected = intersects[ i ].object;
-                        this.__intersected.currentHex = this.__intersected.material.emissive.getHex();
-                        this.__intersected.material.emissive.setHex( 0xff0000 );
-                        
+                        this.__intersected = model;
+                        this.__intersected.intersect();
+
                         return;
                     }
                 }
@@ -414,7 +428,7 @@ qx.Class.define("qxthree.GLWidget", {
             else 
             {
                 if ( this.__intersected ) 
-                    this.__intersected.material.emissive.setHex( this.__intersected.currentHex );
+                    this.__intersected.unIntersect();
 
                 this.__intersected = null;
             }
