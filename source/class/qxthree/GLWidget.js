@@ -301,6 +301,26 @@ qx.Class.define("qxthree.GLWidget", {
             }
         },
         
+        getGLModelIndex: function(id)
+        {
+            for(var i=0; i<this.__GLModels.getLength(); i++){
+                if(this.__GLModels.getItem(i).id() == id){
+                    return i;                    
+                }
+            }            
+            return -1;
+        },
+        
+        getGLModel: function(id)
+        {
+            var modelIndex = this.getGLModelIndex(id);           
+            
+            if (modelIndex != -1)
+                return this.__GLModels.getItem(modelIndex);
+            else
+                return null;
+        },
+        
         
         /**
          * Method to resize the webGl Canvas following GLWidget change of size.
