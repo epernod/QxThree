@@ -56,6 +56,17 @@ qx.Class.define("qxthree.BaseGLModel",
       
       /** Pointer to mesh update method, If set will be called at each animation step. */
       _updateMethod: null,
+      
+      /** {Boolean} value reflecting if three Model should be taken into account for ray-casting intersection computation. */
+      _canIntersect: false,
+      
+      /** Pointer to mesh intersection method, If set will be called when this model is intersected from ray-casting method.
+       * only if @see _canIntersect is set to true. */
+      _intersectMethod: null,
+
+      /** Pointer to mesh unIntersection method, If set will be called when this model is not any more intersected from ray-casting method.
+       * only if @see _canIntersect is set to true. */
+      _unIntersectMethod: null,
 
                 
       /** @return {String} id of this model.*/
@@ -92,7 +103,34 @@ qx.Class.define("qxthree.BaseGLModel",
           this._threeModel.scale.y = sY;
           this._threeModel.scale.z = sZ;
       },
-            
+      
+      /** Set the value of @see _canIntersect */
+      setCanIntersect: function(value)
+      {
+          this._canIntersect = value;
+      },
+      
+      /** Get the value of @see _canIntersect */
+      canIntersect: function()
+      {
+          return this._canIntersect;
+      },
+      
+      /** Set the pointer to method @see _intersectMethod */
+      setIntersectMethod: function(method)
+      {
+          if (this._intersectMethod)
+              delete this._intersectMethod;
+          this._intersectMethod = method;
+      },
+      
+      /** Set the pointer to method @see _unIntersectMethod */
+      setUnIntersectMethod: function(method)
+      {
+          if (this._unIntersectMethod)
+              delete this._unIntersectMethod;
+          this._unIntersectMethod = method;
+      },
            
       /**
        * Main method to init this object only when GL context is ready.
@@ -170,6 +208,39 @@ qx.Class.define("qxthree.BaseGLModel",
       _updateImpl: function()
       {
 
+      },
+      
+      /**
+       * Main method to interact with this object if intersected. 
+       * will be called by {@link qxthree.GLWidget._computeRayIntersection method}
+       * Only if @see {Boolen} _intersectMethod is set to true.
+       * Will call @see _intersectMethod if set. Otherwise will change object material color to red.
+       */
+      intersect: function()
+      {
+          if (this._intersectMethod)
+              this._intersectMethod();
+          else
+          {
+              this._threeModel.currentHex = this._threeModel.material.emissive.getHex();
+              this._threeModel.material.emissive.setHex( 0xff0000 );
+          }
+      },
+
+      /**
+       * Main method to unInteract with this object if not anymore intersected. 
+       * will be called by {@link qxthree.GLWidget._computeRayIntersection method}
+       * Only if @see {Boolen} _intersectMethod is set to true.
+       * Will call @see _unIntersectMethod if set. Otherwise will restore object material color from red.
+       */
+      unIntersect: function()
+      {
+          if (this._unIntersectMethod)
+              this._unIntersectMethod();
+          else
+          {
+              this._threeModel.material.emissive.setHex( this._threeModel.currentHex );
+          }
       }
   }
 });
