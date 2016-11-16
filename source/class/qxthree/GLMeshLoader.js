@@ -57,6 +57,8 @@ qx.Class.define("qxthree.GLMeshLoader",
       /** Pointer to material to apply to the mesh.*/
       _materials: null,
       
+      _logLoader: false,
+      
       /** @return {String} extension of the mesh to be loaded. */
       loaderType: function() {return this._loaderType;},
       
@@ -87,7 +89,7 @@ qx.Class.define("qxthree.GLMeshLoader",
     		  this._onProgressMethod = function(xhr){
     			  if (xhr.lengthComputable){
     				  var percentComplete = xhr.loaded / xhr.total * 100;
-    				  if (qx.core.Environment.get("qx.debug"))
+    				  if (qx.core.Environment.get("qx.debug") && this._logLoader)
     				      this.debug( this._id + " loading progress: " + Math.round(percentComplete, 2) + "%.");
     			  }
     		  }.bind(this);
@@ -134,7 +136,7 @@ qx.Class.define("qxthree.GLMeshLoader",
               return;
           
           this._loaderType = this._filename.substring(this._filename.lastIndexOf(".")+1);
-          if (qx.core.Environment.get("qx.debug"))
+          if (qx.core.Environment.get("qx.debug") && this._logLoader)
               this.debug("this._loaderType: " + this._loaderType);
           
           if (this._loaderType == "obj")
