@@ -221,6 +221,20 @@ qx.Class.define("qxthree.GLWidget", {
             if (!this.__threeRayCaster)
                 this.__threeRayCaster = new THREE.Raycaster();
         },
+        
+        setMouseSelection: function (x, y)
+        {   
+            if(this.__mousePosition)
+            {
+                this.__mousePosition.x = x;
+                this.__mousePosition.y = y;
+                
+                if (this.__threeRayCaster){
+                    this.__threeRayCaster.setFromCamera( this.__mousePosition, this.__threeCamera );
+                    this._computeRayIntersection();
+                }
+            }
+        },
 
         /**
          * Method to render or hide the 3D axis of the scene.
