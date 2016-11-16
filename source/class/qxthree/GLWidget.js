@@ -63,6 +63,7 @@ qx.Class.define("qxthree.GLWidget", {
         
         /** Three.js raycaster object */
         __threeRayCaster: null,        
+        __rayCasterContinuous: false,
         
         __GLModels: null,
         
@@ -206,14 +207,16 @@ qx.Class.define("qxthree.GLWidget", {
         /**
          * 
          */
-        addRayCaster: function(){
+        addRayCaster: function(continuousMode){
             if (!this.__threeScene){
                 this.debug("Scene not ready, rayCaster will be added later");
                 this.addListenerOnce('sceneCreated',function(){
-                    this.addRayCaster();
+                    this.addRayCaster(continuousMode);
                 },this);
                 return;
             }
+            
+            this.__rayCasterContinuous = continuousMode;
             
             if (!this.__threeRayCaster)
                 this.__threeRayCaster = new THREE.Raycaster();
@@ -466,7 +469,7 @@ qx.Class.define("qxthree.GLWidget", {
             if (this.__threeController)
                 this.__threeController.update();
             
-            if (this.__threeRayCaster){
+            if (this.__threeRayCaster && this.__rayCasterContinuous){
                 this.__threeRayCaster.setFromCamera( this.__mousePosition, this.__threeCamera );
                 this._computeRayIntersection();
             }
