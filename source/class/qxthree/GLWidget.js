@@ -184,6 +184,20 @@ qx.Class.define("qxthree.GLWidget", {
             }            
         },
         
+        enableController: function(value)
+        {
+        	if(this.__threeController)
+        		this.__threeController.enabled = value;
+        },
+        
+        isControllerEnabled: function()
+        {
+        	if(this.__threeController)
+        		return this.__threeController.enabled;
+        	else
+        		return false;
+        },
+        
         /**
          * @return {Pointer} to @see this.__threeScene in order to set params
          */
