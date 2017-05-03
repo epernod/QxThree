@@ -236,6 +236,10 @@ qx.Class.define("qxthree.GLWidget", {
                 this.__threeRayCaster = new THREE.Raycaster();
         },
         
+        setRayCasterContinuous: function(value){
+            this.__rayCasterContinuous = value;
+        },
+        
         setMouseSelection: function (x, y)
         {   
             if(this.__mousePosition)
