@@ -42,7 +42,8 @@ qx.Class.define("qxthree.GLWidget", {
     },
 
     events : {
-        sceneCreated: 'qx.event.type.Event'
+        sceneCreated: 'qx.event.type.Event',
+        noWebGL: 'qx.event.type.Event'
     },
 
     members : {
@@ -101,7 +102,22 @@ qx.Class.define("qxthree.GLWidget", {
             if (!el){
                 this.debug("Error: qxthree.GLWidget: no DomElement found.")
                 return false;
+            }                        
+            
+            // Check webgl context
+            var _canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
+            var context = this.__create3DContext(_canvas, {
+                antialias: true,
+                stencil: false,
+                preserveDrawingBuffer: true
+            });
+            
+            if (!context) 
+            {                
+                this.fireDataEvent('noWebGL');
+                return;
             }
+
             
             // Init Three canvas with current widget size
             this.__canvasBounds = this.getBounds();
@@ -118,8 +134,12 @@ qx.Class.define("qxthree.GLWidget", {
             // Init empty Three scene
             this.__threeScene = new THREE.Scene();
             
-            // Init the webgl renderer
             this.__threeRenderer = new THREE.WebGLRenderer();
+            if (this.__threeRenderer == null)
+            {
+                this.debug("No WebGL");
+            }            
+            
             this.__threeRenderer.setPixelRatio( 1 );
             this.__threeRenderer.setSize( this.__canvasBounds.width, this.__canvasBounds.height );
             
@@ -146,7 +166,22 @@ qx.Class.define("qxthree.GLWidget", {
             
             // Start animation loop
             this._animate();
-        },               
+        },
+        
+        
+        __create3DContext: function(canvas, opt_attribs) {
+            var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+            var context = null;
+            for (var ii = 0; ii < names.length; ++ii) {
+                try {
+                    context = canvas.getContext(names[ii], opt_attribs);
+                } catch (e) {}
+                if (context) {
+                    break;
+                }
+            }
+            return context;
+        },
 
         /**
          * Method to add a Three TrackballController on the Three scene. Need to use plugin @see controls/TrackballControls
