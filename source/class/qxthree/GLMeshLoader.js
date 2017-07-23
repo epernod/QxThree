@@ -113,7 +113,9 @@ qx.Class.define("qxthree.GLMeshLoader",
     	  // load the model
     	  if (this._materials)
     	      this._threeLoader.setMaterials(this._materials);
-    	  this._threeLoader.setPath(this._url);
+    	  
+    	  if (this._loaderType == "obj" || this._loaderType == "mtl")
+    		  this._threeLoader.setPath(this._url);
     	  this._threeLoader.load(this._filename, this._onLoadMethod, this._onProgressMethod, this._onErrorMethod);
       },
       
@@ -145,6 +147,8 @@ qx.Class.define("qxthree.GLMeshLoader",
         	  this._threeLoader = new THREE.CTMLoader();
           else if (this._loaderType == "mtl")
               this._threeLoader = new THREE.MTLLoader();
+          else if (this._loaderType == "vtk")
+        	  this._threeLoader = new THREE.VTKLoader();
       }
   }
 });
