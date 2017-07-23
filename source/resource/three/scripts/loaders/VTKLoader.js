@@ -1089,14 +1089,26 @@ Object.assign( THREE.VTKLoader.prototype, THREE.EventDispatcher.prototype, {
 
 		// get the 5 first lines of the files to check if there is the key word binary
 		var meta = String.fromCharCode.apply( null, new Uint8Array( data, 0, 250 ) ).split( '\n' );
+		var stringMode = false;
+		if (meta.length < 5){
+			meta = data.split( '\n' );
+			stringMode = true;
+		}
+	
+		if ( meta.length > 2 && meta[ 0 ].indexOf( 'xml' ) !== - 1 ) {
 
-		if ( meta[ 0 ].indexOf( 'xml' ) !== - 1 ) {
+			if (stringMode)
+				return parseXML( data );
+			else
+				return parseXML( getStringFile( data ) );
+			
 
-			return parseXML( getStringFile( data ) );
+		} else if (  meta.length > 2 && meta[ 2 ].includes( 'ASCII' ) ) {
 
-		} else if ( meta[ 2 ].includes( 'ASCII' ) ) {
-
-			return parseASCII( getStringFile( data ) );
+			if (stringMode)
+				return parseASCII( data );
+			else
+				return parseASCII( getStringFile(data) );
 
 		} else {
 
