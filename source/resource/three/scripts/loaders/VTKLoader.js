@@ -1088,7 +1088,10 @@ Object.assign( THREE.VTKLoader.prototype, THREE.EventDispatcher.prototype, {
 		}
 
 		// get the 5 first lines of the files to check if there is the key word binary
-		var meta = String.fromCharCode.apply( null, new Uint8Array( data, 0, 250 ) ).split( '\n' );
+		var emptyArray = new Uint8Array( 250 );
+		var meta = String.fromCharCode.apply( null, emptyArray );
+		meta = meta.split( '\n' );
+		
 		var stringMode = false;
 		if (meta.length < 5){
 			meta = data.split( '\n' );
