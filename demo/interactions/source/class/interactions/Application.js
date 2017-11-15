@@ -80,8 +80,8 @@ qx.Class.define("interactions.Application",
 
         scenePostProcess: function()
         {
-            this.debug("Scene has been created");
-            //this.GLWidget.animate(true);  
+        	//this.debug("Scene has been created");
+            this.GLWidget.setRayCasterContinuous(true);  
         },
         
         initMeshes: function()
@@ -97,11 +97,12 @@ qx.Class.define("interactions.Application",
                     this.setPosition(Math.random() * 800 - 400, Math.random() * 800 - 400, Math.random() * 800 - 400);
                     this.setRotation(Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI, Math.random() * 2 * Math.PI);
                     this.setScale(Math.random() + 0.5, Math.random() + 0.5, Math.random() + 0.5);
+                    this.setCanIntersect(true);
                 });
 
                 this.GLWidget.addGLModel(glCube);            
             }
-            this.GLWidget.addRayCaster();
+            this.GLWidget.addRayCaster(true);
             
             // create light
             var GLDirLight = new qxthree.BaseGLModel("defaultLight", function(){
