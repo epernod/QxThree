@@ -68,6 +68,7 @@ qx.Class.define("qxthree.BaseGLModel",
        * only if @see _canIntersect is set to true. */
       _unIntersectMethod: null,
 
+      _intersectInfo: null,
                 
       /** @return {String} id of this model.*/
       id: function() {return this._id;},
@@ -216,8 +217,11 @@ qx.Class.define("qxthree.BaseGLModel",
        * Only if @see {Boolen} _intersectMethod is set to true.
        * Will call @see _intersectMethod if set. Otherwise will change object material color to red.
        */
-      intersect: function()
+      intersect: function(interInfo)
       {
+    	  if (interInfo)
+    		  this._intersectInfo = interInfo;
+    	  
           if (this._intersectMethod)
               this._intersectMethod();
           else
@@ -241,6 +245,8 @@ qx.Class.define("qxthree.BaseGLModel",
           {
               this._threeModel.material.emissive.setHex( this._threeModel.currentHex );
           }
+          
+          this._intersectInfo = null;
       }
   }
 });

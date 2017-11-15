@@ -37,6 +37,7 @@ qx.Class.define("qxthree.GLWidget", {
         this.addListener("resize", this.onResize, this);
         
         this.addListener("trackstart", this.__onTrackStart, this);
+        this.addListener("trackend", this.__onTrackStop, this);
         this.addListener("track", this.__onTrack, this);
         this.addListener("keypress", this.__handleKeyPress, this);
     },
@@ -454,8 +455,6 @@ qx.Class.define("qxthree.GLWidget", {
             	// iterate if still a parent
         		var parent = parent.getLayoutParent();
         	}
-
-        	
         	
         },
 
@@ -512,14 +511,14 @@ qx.Class.define("qxthree.GLWidget", {
                     
                     var model = this.getGLModel(nameIntersected);
                     
-                    if(model != null && this.__intersected != model ) 
+                    if(model != null && typeof intersectObject !== 'undefined') 
                     {                 
                         //this.debug("inter: " + i + " => " + model.id());
                         if ( this.__intersected ) 
                             this.__intersected.unIntersect();
 
                         this.__intersected = model;
-                        this.__intersected.intersect();
+                        this.__intersected.intersect(intersects[ i ]);
 
                         return;
                     }
@@ -537,10 +536,27 @@ qx.Class.define("qxthree.GLWidget", {
         /**
          * callback method when @see trackstart {event} is catched. @param trackEvent
          */
+        __trackMouse: false,
         __onTrackStart: function(trackEvent) {
             if (qx.core.Environment.get("qx.debug") && this.__logEvents){
                 this.debug("Event: GLWidget::__onTrackStart");
             }
+            
+            if (this.__rayCasterContinuous)
+            	this.__trackMouse = true;
+        },
+        
+        __onTrackStop: function(trackEvent) {
+        	if (this.__rayCasterContinuous)
+        	{
+        		if ( this.__intersected ) 
+                    this.__intersected.unIntersect();
+
+                this.__intersected = null;
+        	}
+        	
+        	if (this.__rayCasterContinuous)
+            	this.__trackMouse = false;
         },
         
         /**
@@ -556,6 +572,11 @@ qx.Class.define("qxthree.GLWidget", {
             
             this.__mousePosition.x = ((trackEvent.getDocumentLeft() - this.__boundingBox.left) / this.__boundingBox.width)*2 - 1;
             this.__mousePosition.y = - ((trackEvent.getDocumentTop() - this.__boundingBox.top) / this.__boundingBox.height)*2 + 1;
+            
+            if (this.__threeRayCaster && this.__trackMouse){
+                this.__threeRayCaster.setFromCamera( this.__mousePosition, this.__threeCamera );                
+                this._computeRayIntersection();
+            }
             //this.debug("this.__mousePosition: " + this.__mousePosition.x + " - " + this.__mousePosition.y);
             //this.debug("this.__canvasBounds: " + this.__canvasBounds.left + " - " + this.__canvasBounds.top);
                                      
@@ -594,11 +615,6 @@ qx.Class.define("qxthree.GLWidget", {
             // Call update of the controller if set
             if (this.__threeController)
                 this.__threeController.update();
-            
-            if (this.__threeRayCaster && this.__rayCasterContinuous){
-                this.__threeRayCaster.setFromCamera( this.__mousePosition, this.__threeCamera );                
-                this._computeRayIntersection();
-            }
             
             // Update the rendering
             this.__threeRenderer.render( this.__threeScene, this.__threeCamera );
