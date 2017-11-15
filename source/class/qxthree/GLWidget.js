@@ -122,7 +122,7 @@ qx.Class.define("qxthree.GLWidget", {
             // Init Three canvas with current widget size
             this.__canvasBounds = this.getBounds();
             
-            this.__mousePosition = new THREE.Vector2()
+            this.__mousePosition = new THREE.Vector2();
             this.__mousePosition.x = 0;
             this.__mousePosition.y = 0;
 
@@ -264,6 +264,9 @@ qx.Class.define("qxthree.GLWidget", {
                 },this);
                 return;
             }
+            
+            if (!continuousMode)
+            	continuousMode = false;
             
             this.__rayCasterContinuous = continuousMode;
             
@@ -449,9 +452,7 @@ qx.Class.define("qxthree.GLWidget", {
                     objects.push(model.threeModel());   
                 }
             }
-            
-            var old = this.__threeScene.children;
-                        
+                                   
             var intersects = this.__threeRayCaster.intersectObjects( objects );
             if ( intersects.length > 0 ) 
             {              
@@ -552,6 +553,7 @@ qx.Class.define("qxthree.GLWidget", {
             
             if (this.__threeRayCaster && this.__rayCasterContinuous){
                 this.__threeRayCaster.setFromCamera( this.__mousePosition, this.__threeCamera );
+                this.debug("this.__mousePosition: " + this.__mousePosition.x + " - " + this.__mousePosition.y);
                 this._computeRayIntersection();
             }
             
