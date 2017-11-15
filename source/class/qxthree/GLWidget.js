@@ -20,7 +20,7 @@ qx.Class.define("qxthree.GLWidget", {
     extend : qx.ui.core.Widget,
     include: [qxthree.MixinGLRenderer],
 
-    construct : function(plugins)
+    construct : function(plugins, parameters)
     {
         this.base(arguments);
 
@@ -29,6 +29,10 @@ qx.Class.define("qxthree.GLWidget", {
         
         // Three.js scripts need to be loaded first. This will fired event scriptLoaded 
         this._setup(plugins);
+        
+        // set the renderer parameters
+        if (parameters)
+        	this.__rendererParameters = parameters;
         
         // Method to init the scene as soon as Three.js has been loaded
         this.addListener("scriptLoaded", this._initScene, this);
@@ -74,6 +78,16 @@ qx.Class.define("qxthree.GLWidget", {
 
         /** Real glwidget canvas width and height. Includes also top and left position in the entire browser, computed from parents inclusions **/
         __boundingBox: null,
+        
+        __rendererParameters: null,
+        
+        __postAnimatedMethod: null,
+        setPostAnimatedMethod: function(method)
+        {
+        	if (this.__postAnimatedMethod)
+        		delete this.__postAnimatedMethod;
+        	this.__postAnimatedMethod = method;
+        },
         
         /**
          * @return {Integer} of the canvas height.
@@ -138,7 +152,7 @@ qx.Class.define("qxthree.GLWidget", {
             // Init empty Three scene
             this.__threeScene = new THREE.Scene();
             
-            this.__threeRenderer = new THREE.WebGLRenderer();
+            this.__threeRenderer = new THREE.WebGLRenderer(this.__rendererParameters);
             if (this.__threeRenderer == null)
             {
                 this.debug("No WebGL");
@@ -479,6 +493,9 @@ qx.Class.define("qxthree.GLWidget", {
                 for (var i=0; i<this.__GLModels.length; i++)
                     this.__GLModels.getItem(i).animate();
             }
+            
+            if(this.__postAnimatedMethod)
+            	this.__postAnimatedMethod();
 
             this.updateGL();            
             requestAnimationFrame( this._animate.bind(this) );                      
