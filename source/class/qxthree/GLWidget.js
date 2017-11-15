@@ -299,7 +299,7 @@ qx.Class.define("qxthree.GLWidget", {
         /**
          * Method to render or hide the 3D axis of the scene.
          */
-        showAxis: function()
+        showAxis: function(scale)
         {
             if (!this.__threeScene)
                 return;
@@ -309,7 +309,10 @@ qx.Class.define("qxthree.GLWidget", {
                 axisObject.visible = !axisObject.visible;
             else // first time, need to create the axis object
             {
-                axisObject = new THREE.AxisHelper( this.__canvasBounds.height*0.5 );
+            	var _scale = 0.5;
+            	if (typeof scale !== 'undefined')
+            		_scale = scale;
+                axisObject = new THREE.AxisHelper( this.__canvasBounds.height*_scale );
                 axisObject.name = "sceneAxis";
                 this.__threeScene.add(axisObject);
             }
