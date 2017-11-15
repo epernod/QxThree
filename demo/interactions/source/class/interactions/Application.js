@@ -31,6 +31,8 @@ qx.Class.define("interactions.Application",
          */
         GLWidget: null,
         
+        m_win: null,
+        
         /**
          * This method contains the initial application code and gets called 
          * during startup of the application
@@ -81,7 +83,8 @@ qx.Class.define("interactions.Application",
         scenePostProcess: function()
         {
         	//this.debug("Scene has been created");
-            this.GLWidget.setRayCasterContinuous(true);  
+            this.GLWidget.setRayCasterContinuous(true);
+            this.GLWidget.computeCanvasBB();
         },
         
         initMeshes: function()
@@ -130,7 +133,7 @@ qx.Class.define("interactions.Application",
             container.add(this.GLWidget, { flex : 2 });
 
             // Create the main window to encapsulate this container
-            var win = new qx.ui.window.Window('Three 3D Cubes interactions').set(
+            this.m_win = new qx.ui.window.Window('Three 3D Cubes interactions').set(
                     {
                         backgroundColor: "yellow",
                         width : 650,
@@ -138,12 +141,21 @@ qx.Class.define("interactions.Application",
                         allowGrowX: true,
                         allowGrowY: true
                     });
-            win.setLayout(new qx.ui.layout.Grow());
-            win.addListener('appear', function() {
-                win.center()
-            });
-            win.add(container);
-            win.open();
+            this.m_win.setLayout(new qx.ui.layout.Grow());
+            this.m_win.addListener('appear', function() {
+            	this.m_win.center();
+            }, this);
+            this.m_win.add(container);
+            this.m_win.addListener("resize", this.recomputeGLBound, this);
+            this.m_win.addListener("move", this.recomputeGLBound, this);
+            this.m_win.open();
+        },
+        
+        recomputeGLBound: function()
+        {
+        	this.debug("recomputeGLBound");
+        	if (this.GLWidget)
+        		this.GLWidget.setBoundingBox(null);
         },
         
         createPanel: function()

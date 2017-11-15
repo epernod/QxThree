@@ -70,6 +70,9 @@ qx.Class.define("qxthree.GLWidget", {
         
         __mousePosition: null,
         __intersected: null,
+
+        /** Real glwidget canvas width and height. Includes also top and left position in the entire browser, computed from parents inclusions **/
+        __boundingBox: null,
         
         /**
          * @return {Integer} of the canvas height.
@@ -412,7 +415,50 @@ qx.Class.define("qxthree.GLWidget", {
 
             this.updateGL();
         },
-                 
+        
+        
+        /**
+         * Setter of @see __boundingBox Can give a map with height, width, top and left or null pointer to force recompute.
+         * @param _bb
+         */
+        setBoundingBox: function(_bb) {this.__boundingBox = _bb;},
+        
+        /**
+         * Method to compute @see __boundingBox in the entire browser page, by checking parents bounds.
+         */
+        computeCanvasBB: function()
+        {
+        	// Need to accumulate the position of all parents
+        	var security = 100;
+        	var cpt = 0;
+        	var parent = this.getLayoutParent();
+        	var bounds = this.getBounds();
+        	this.__boundingBox = {
+        			left: bounds.left,
+        			top: bounds.top,
+        			height: bounds.height,
+        			width: bounds.width
+        			};
+        	
+        	        	
+        	//this.debug("computeCanvasBB: left: " + this.__boundingBox.left + " | top: " + this.__boundingBox.top);
+        	while (parent && cpt < security)
+        	{
+        		// Incremente the bounds taking into account parent one
+        		var pBounds = parent.getBounds();
+        		this.__boundingBox.left += pBounds.left;
+        		this.__boundingBox.top += pBounds.top;        		            	
+
+        		//this.debug("computeCanvasBB: left: " + this.__boundingBox.left + " | top: " + this.__boundingBox.top);
+        		
+            	// iterate if still a parent
+        		var parent = parent.getLayoutParent();
+        	}
+
+        	
+        	
+        },
+
         /**
          * Method to set @param {Boolean} value to @see __animate
          * Will start the animation if not already running.
@@ -468,7 +514,7 @@ qx.Class.define("qxthree.GLWidget", {
                     
                     if(model != null && this.__intersected != model ) 
                     {                 
-                        this.debug("inter: " + i + " => " + model.id());
+                        //this.debug("inter: " + i + " => " + model.id());
                         if ( this.__intersected ) 
                             this.__intersected.unIntersect();
 
@@ -505,16 +551,14 @@ qx.Class.define("qxthree.GLWidget", {
                 this.debug("Event: GLWidget::__onTrack");
             }
             
-            var width  = parseInt(qx.bom.Document.getWidth());
-            var height  = parseInt(qx.bom.Document.getHeight());
-            this.__mousePosition.x = ((trackEvent.getDocumentLeft()/* - this.__canvasBounds.left*/) / width)*2 - 1;
-            this.__mousePosition.y = - ((trackEvent.getDocumentTop()/* - this.__canvasBounds.top*/) / height)*2 + 1;
-                         
-//            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-//            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-//            this.debug("mouse: " + trackEvent.getViewportLeft() + " | " + trackEvent.getViewportTop());
-//            this.debug("mouse final: " + this.__mousePosition.x + " | " + this.__mousePosition.y);
+            if (!this.__boundingBox)
+            	this.computeCanvasBB();
             
+            this.__mousePosition.x = ((trackEvent.getDocumentLeft() - this.__boundingBox.left) / this.__boundingBox.width)*2 - 1;
+            this.__mousePosition.y = - ((trackEvent.getDocumentTop() - this.__boundingBox.top) / this.__boundingBox.height)*2 + 1;
+            //this.debug("this.__mousePosition: " + this.__mousePosition.x + " - " + this.__mousePosition.y);
+            //this.debug("this.__canvasBounds: " + this.__canvasBounds.left + " - " + this.__canvasBounds.top);
+                                     
             this.updateGL();
         },
                 
@@ -552,8 +596,7 @@ qx.Class.define("qxthree.GLWidget", {
                 this.__threeController.update();
             
             if (this.__threeRayCaster && this.__rayCasterContinuous){
-                this.__threeRayCaster.setFromCamera( this.__mousePosition, this.__threeCamera );
-                this.debug("this.__mousePosition: " + this.__mousePosition.x + " - " + this.__mousePosition.y);
+                this.__threeRayCaster.setFromCamera( this.__mousePosition, this.__threeCamera );                
                 this._computeRayIntersection();
             }
             
