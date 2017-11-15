@@ -27,7 +27,7 @@
   "let" :
   {
     "APPLICATION"  : "qxthree",
-    "QOOXDOO_PATH" : "../qooxdoo/5.0",
+    "QOOXDOO_PATH" : "../qooxdoo-sdk",
     "QXTHEME"      : "qx.theme.Modern",
     "API_EXCLUDE"  : ["qx.test.*", "qxthree.demo.*", "${APPLICATION}.theme.*", "${APPLICATION}.test.*"],
     "LOCALES"      : [ "en" ],

@@ -41,7 +41,7 @@
   "let" :
   {
     "APPLICATION"  : "material",
-    "QOOXDOO_PATH" : "../../../qooxdoo/5.0",
+    "QOOXDOO_PATH" : "../../../qooxdoo-sdk",
     "QXTHEME"      : "material.theme.Theme",
     "API_EXCLUDE"  : ["qx.test.*", "${APPLICATION}.theme.*", "${APPLICATION}.test.*"],
     "LOCALES"      : [ "en" ],
