@@ -310,6 +310,23 @@ qx.Class.define("qxthree.GLWidget", {
             }
         },
         
+        setMouseSelectionEvent: function(trackEvent)
+        {
+        	if(this.__mousePosition)
+            {
+        		if (!this.__boundingBox)
+        			this.computeCanvasBB();
+            
+        		this.__mousePosition.x = ((trackEvent.getDocumentLeft() - this.__boundingBox.left) / this.__boundingBox.width)*2 - 1;
+        		this.__mousePosition.y = - ((trackEvent.getDocumentTop() - this.__boundingBox.top) / this.__boundingBox.height)*2 + 1;
+            
+        		if (this.__threeRayCaster){
+        			this.__threeRayCaster.setFromCamera( this.__mousePosition, this.__threeCamera );                
+        			this._computeRayIntersection();
+        		}
+            }
+        },
+        
         /**
          * Method to render or hide the 3D axis of the scene.
          */
