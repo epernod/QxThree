@@ -400,6 +400,27 @@ qx.Class.define("qxthree.GLWidget", {
         
         
         /**
+         * Method to remove a @param model {qxthree.BaseGLModel}. 
+         * This model will be removed from @see __GLModels
+         * The threeModel behind will be removed from three.js scene using method @see _removeThreeMesh
+         */
+        removeGLModel: function(model)
+        {
+            if (!this.__GLModels.contains(model))
+                this.debug("Error: GLModel can't be removed, not in the scene: " + model.id());
+            else
+            {
+                // first remove model from list
+                this.__GLModels.remove(model);
+                // then remove three model from scene
+                this._removeThreeMesh(model);
+                // finally destroy model
+                delete model;
+                model = null;
+            }
+        },
+        
+        /**
          * Internal Method to add a Three mesh from a @see qxthree.BaseGLModel into the Three scene.
          * Will set @see qxthree.BaseGLModel.__isRegistered to {true}
          */
@@ -410,6 +431,17 @@ qx.Class.define("qxthree.GLWidget", {
                 model.setRegistered(true);
                 this.updateGL();
             }
+        },
+        
+        /**
+         * Internal Method to remove a Three mesh @see qxthree.BaseGLModel from the Three scene.
+         */
+        _removeThreeMesh: function(model)
+        {
+            if(model == null)
+                return;
+            
+            this.__threeScene.remove( model.threeModel() );
         },
         
         getGLModelIndex: function(id)
