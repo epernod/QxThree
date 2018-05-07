@@ -522,6 +522,14 @@ qx.Class.define("qxthree.GLWidget", {
         		var parent = parent.getLayoutParent();
         	}
         	
+        	var app =  qx.core.Init.getApplication();
+        	if (app != null){
+        		if (app.offsets){
+        			this.__boundingBox.left += app.offsets.left;
+            		this.__boundingBox.top += app.offsets.top;    
+        		}
+        	}
+        	
         },
 
         /**
