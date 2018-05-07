@@ -479,7 +479,7 @@ qx.Class.define("qxthree.GLWidget", {
             this.__threeCamera.updateProjectionMatrix();
             
             this.__threeRenderer.setSize( this.__canvasBounds.width, this.__canvasBounds.height );
-
+            this.computeCanvasBB();
             this.updateGL();
         },
         
