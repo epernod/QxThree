@@ -1106,7 +1106,7 @@ Object.assign( THREE.VTKLoader.prototype, THREE.EventDispatcher.prototype, {
 				return parseXML( getStringFile( data ) );
 			
 
-		} else if (  meta.length > 2 && meta[ 2 ].includes( 'ASCII' ) ) {
+		} else if (  meta.length > 2 && meta[ 2 ].indexOf( 'ASCII' ) !== -1 ) {
 
 			if (stringMode)
 				return parseASCII( data );
