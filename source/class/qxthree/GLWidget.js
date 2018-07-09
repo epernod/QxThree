@@ -479,7 +479,7 @@ qx.Class.define("qxthree.GLWidget", {
             this.__threeCamera.updateProjectionMatrix();
             
             this.__threeRenderer.setSize( this.__canvasBounds.width, this.__canvasBounds.height );
-
+            this.computeCanvasBB();
             this.updateGL();
         },
         
@@ -520,6 +520,14 @@ qx.Class.define("qxthree.GLWidget", {
         		
             	// iterate if still a parent
         		var parent = parent.getLayoutParent();
+        	}
+        	
+        	var app =  qx.core.Init.getApplication();
+        	if (app != null){
+        		if (app.offsets){
+        			this.__boundingBox.left += app.offsets.left;
+            		this.__boundingBox.top += app.offsets.top;    
+        		}
         	}
         	
         },
